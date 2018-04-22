@@ -22,6 +22,8 @@
             LOW -> password must be secure
         Calendar
             HIGH -> Gray out/disable days that are before current date. Converting yyyyMMdd to int and compare size should do it.
+        Socketed
+            LOW -> Build in socket.io event data handling for all textual data, build on API as well
 */
 
 import UIKit
