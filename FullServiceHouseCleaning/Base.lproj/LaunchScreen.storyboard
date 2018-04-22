@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="ipad12_9" orientation="landscape">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="1366" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="top" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" text="Full Service House Cleaning Loading, Please Wait..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cUp-8R-qp2">
+                                <rect key="frame" x="0.0" y="951" width="1366" height="53"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nv6-ea-MCn">
+                                <rect key="frame" x="136.5" y="177.5" width="1093" height="669"/>
+                                <subviews>
+                                    <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" insetsLayoutMarginsFromSafeArea="NO" image="FSHC-Logo-325x325" translatesAutoresizingMaskIntoConstraints="NO" id="pUq-A1-eLe">
+                                        <rect key="frame" x="384.5" y="172" width="325.5" height="325"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="pUq-A1-eLe" secondAttribute="height" multiplier="1:1" id="OuT-BZ-h1U"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="pUq-A1-eLe" firstAttribute="centerX" secondItem="nv6-ea-MCn" secondAttribute="centerX" id="Cov-4i-02r"/>
+                                    <constraint firstItem="pUq-A1-eLe" firstAttribute="top" relation="greaterThanOrEqual" secondItem="nv6-ea-MCn" secondAttribute="top" id="EdH-wQ-BAD"/>
+                                    <constraint firstItem="pUq-A1-eLe" firstAttribute="centerY" secondItem="nv6-ea-MCn" secondAttribute="centerY" id="IZw-0L-ZzE"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="pUq-A1-eLe" secondAttribute="bottom" id="Mtm-Cu-WGp"/>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="pUq-A1-eLe" secondAttribute="trailing" id="VBc-xu-z9f"/>
+                                    <constraint firstItem="pUq-A1-eLe" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="nv6-ea-MCn" secondAttribute="leading" id="WtM-HX-1Cw"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="nv6-ea-MCn" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="95Y-c0-9jK"/>
+                            <constraint firstItem="cUp-8R-qp2" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="9f9-xd-xQH"/>
+                            <constraint firstItem="cUp-8R-qp2" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" id="Lpb-gV-U8t"/>
+                            <constraint firstItem="nv6-ea-MCn" firstAttribute="width" secondItem="6Tk-OE-BBY" secondAttribute="width" multiplier="4:5" id="N9W-QC-LlW"/>
+                            <constraint firstItem="nv6-ea-MCn" firstAttribute="height" secondItem="6Tk-OE-BBY" secondAttribute="height" multiplier="2:3" id="VU5-UE-hAk"/>
+                            <constraint firstItem="cUp-8R-qp2" firstAttribute="top" relation="greaterThanOrEqual" secondItem="nv6-ea-MCn" secondAttribute="bottom" id="dkL-m0-L3r"/>
+                            <constraint firstItem="nv6-ea-MCn" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="uwp-e6-Il6"/>
+                            <constraint firstAttribute="bottom" secondItem="cUp-8R-qp2" secondAttribute="bottom" constant="20" id="z8P-8o-Mgp"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52" y="374.66266866566718"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="FSHC-Logo-325x325" width="325" height="325"/>
+    </resources>
+</document>
