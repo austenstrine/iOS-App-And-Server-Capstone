@@ -9,6 +9,7 @@
         Low Priority:
             Socket connecting to server twice(thrice?) after (application becomes active, then user logs in), ONLY when application is sent to the background
             HomeView opens loginpopup twice(thrice?) on server reconnecting mid-app run
+            Socket disconnect event does nothing - figure out how it should be done
     BUILD Priority:
         Profile
             HIGH -> edit buttons
@@ -23,7 +24,8 @@
         Calendar
             HIGH -> Gray out/disable days that are before current date. Converting yyyyMMdd to int and compare size should do it.
         Socketed
-            LOW -> Build in socket.io event data handling for all textual data, build on API as well
+            HIGH -> Build in socket.io event data handling for all textual data, build on API as well
+            HIGH -> Build in user/pass validation through socket.io, same as above
 */
 
 import UIKit
