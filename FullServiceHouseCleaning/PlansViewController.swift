@@ -25,8 +25,10 @@ class PlansViewController: SocketedViewController
     override func viewDidAppear(_ animated: Bool)
     {
         super.viewDidAppear(animated)
-        let task = self.getPlansTask(deferredUIUpdateFunc:self.updatePlanContent)//will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        task.resume()
+        delegate.validatePlansData
+        {
+            self.updatePlanContent()
+        }
     }
     
     @IBAction func unwindToPlansView(sender: UIStoryboardSegue)
@@ -38,9 +40,6 @@ class PlansViewController: SocketedViewController
         {
             sourceViewController.didUnwind = true
             self.selectedPlanName = sourceViewController.planSelected!
-            self.socket = sourceViewController.socket
-            self.token = sourceViewController.token
-            self.clientLock = sourceViewController.clientLock
         }
     }
     
@@ -68,9 +67,6 @@ class PlansViewController: SocketedViewController
                 print(self.navigationController!.viewControllers)
                 let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "CalendarViewController") as! CalendarViewController
                 nextViewController.planSelected = self.selectedPlanName
-                nextViewController.socket = self.socket
-                nextViewController.token = self.token
-                nextViewController.clientLock = self.clientLock
                 self.navigationController?.pushViewController(nextViewController, animated: true)
             }
             else
@@ -84,13 +80,7 @@ class PlansViewController: SocketedViewController
     @IBAction func goldPlanNavTap(_ sender: Any)
     {
         func refreshPlan(){self.refreshPlan(index: 3)}
-        if self.arrayOfPlans.isEmpty
-        {
-            let task = self.getPlansTask(deferredUIUpdateFunc:refreshPlan)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
+        delegate.validatePlansData()
         {
             refreshPlan()
         }
@@ -99,13 +89,7 @@ class PlansViewController: SocketedViewController
     @IBAction func silverPlanNavTap(_ sender: Any)
     {
         func refreshPlan(){self.refreshPlan(index: 2)}
-        if self.arrayOfPlans.isEmpty
-        {
-            let task = self.getPlansTask(deferredUIUpdateFunc:refreshPlan)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
+        delegate.validatePlansData()
         {
             refreshPlan()
         }
@@ -114,13 +98,7 @@ class PlansViewController: SocketedViewController
     @IBAction func bronzePlanNavTap(_ sender: Any)
     {
         func refreshPlan(){self.refreshPlan(index: 1)}
-        if self.arrayOfPlans.isEmpty
-        {
-            let task = self.getPlansTask(deferredUIUpdateFunc:refreshPlan)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
+        delegate.validatePlansData()
         {
             refreshPlan()
         }
@@ -129,13 +107,7 @@ class PlansViewController: SocketedViewController
     @IBAction func timelessPlanNavTap(_ sender: Any)
     {
         func refreshPlan(){self.refreshPlan(index: 0)}
-        if self.arrayOfPlans.isEmpty
-        {
-            let task = self.getPlansTask(deferredUIUpdateFunc:refreshPlan)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
+        delegate.validatePlansData()
         {
             refreshPlan()
         }
@@ -143,7 +115,7 @@ class PlansViewController: SocketedViewController
     
     func refreshPlan(index:Int)
     {
-        self.selectedPlanName = self.arrayOfPlans[index].name
+        self.selectedPlanName = self.delegate.arrayOfPlans[index].name
         self.updatePlanContent()
     }
     
@@ -152,22 +124,21 @@ class PlansViewController: SocketedViewController
         var num:Int? = nil
         switch self.selectedPlanName
         {
-        case self.arrayOfPlans[0].name:
+        case self.delegate.arrayOfPlans[0].name:
             num = 0
-        case self.arrayOfPlans[1].name:
+        case self.delegate.arrayOfPlans[1].name:
             num = 1
-        case self.arrayOfPlans[2].name:
+        case self.delegate.arrayOfPlans[2].name:
             num = 2
-        case self.arrayOfPlans[3].name:
+        case self.delegate.arrayOfPlans[3].name:
             num = 3
         default:
             print("Whoops! What happened? Unexpected selectedPlanName value!")
         }
-        self.planImage.image = UIImage(named:self.arrayOfPlans[num!].image)
-        self.planTitleLabel.text = String(self.arrayOfPlans[num!].name)
-        self.planRateLabel.text = String(self.arrayOfPlans[num!].rate)
-        self.planContentLabel.text = String(self.arrayOfPlans[num!].description)
-        self.clientLock.unlock()
+        self.planImage.image = UIImage(named:self.delegate.arrayOfPlans[num!].image)
+        self.planTitleLabel.text = String(self.delegate.arrayOfPlans[num!].name)
+        self.planRateLabel.text = String(self.delegate.arrayOfPlans[num!].rate)
+        self.planContentLabel.text = String(self.delegate.arrayOfPlans[num!].description)
     }
 
 }

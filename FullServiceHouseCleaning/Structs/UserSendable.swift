@@ -1,14 +1,14 @@
 //
-//  UserInfo.swift
+//  UserSendable.swift
 //  FullServiceHouseCleaning
 //
-//  Created by admin on Sunday4/8/18.
+//  Created by admin on Monday4/23/18.
 //  Copyright © 2018 Student. All rights reserved.
 //
 
 import UIKit
 
-struct User: Codable
+struct UserSendable:Codable
 {
     let id:Int
     let first_name: String
@@ -19,6 +19,7 @@ struct User: Codable
     let active: Int
     let number: String
     let username: String
+    let password: String
     
     init (json: [String:Any])
     {
@@ -31,5 +32,20 @@ struct User: Codable
         active = json["active"] as? Int ?? -1
         number = json["number"] as? String ?? ""
         username = json["username"] as? String ?? ""
+        password = json["password"] as? String ?? ""
+    }
+    
+    init (user:User,passwordString:String)
+    {
+        id = user.id
+        first_name = user.first_name
+        last_name = user.last_name
+        plan_id = user.plan_id
+        street_address = user.street_address
+        city_state_zip = user.city_state_zip
+        active = user.active
+        number = user.number
+        username = user.username
+        password = passwordString
     }
 }

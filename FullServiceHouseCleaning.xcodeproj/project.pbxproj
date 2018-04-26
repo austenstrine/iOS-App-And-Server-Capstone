@@ -30,6 +30,8 @@
 		84550C23207350BC009EB455 /* ScheduledVisit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84550C22207350BC009EB455 /* ScheduledVisit.swift */; };
 		84550C2520735322009EB455 /* Tech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84550C2420735322009EB455 /* Tech.swift */; };
 		84550C2720735339009EB455 /* TechsAPIStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84550C2620735339009EB455 /* TechsAPIStruct.swift */; };
+		84BED5DA208E674F002025E6 /* UserSendable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BED5D9208E674F002025E6 /* UserSendable.swift */; };
+		84BED5DC208E7DA4002025E6 /* UserPassRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BED5DB208E7DA4002025E6 /* UserPassRequest.swift */; };
 		84EF16532089A29D00517A5A /* NetworkErrorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EF16522089A29D00517A5A /* NetworkErrorViewController.swift */; };
 		84FBAD542072EB3100D8E815 /* PlansAPIStruct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBAD532072EB3100D8E815 /* PlansAPIStruct.swift */; };
 		84FBAD582072EFA100D8E815 /* Plan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FBAD572072EFA100D8E815 /* Plan.swift */; };
@@ -86,6 +88,8 @@
 		84550C22207350BC009EB455 /* ScheduledVisit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledVisit.swift; sourceTree = "<group>"; };
 		84550C2420735322009EB455 /* Tech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tech.swift; sourceTree = "<group>"; };
 		84550C2620735339009EB455 /* TechsAPIStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechsAPIStruct.swift; sourceTree = "<group>"; };
+		84BED5D9208E674F002025E6 /* UserSendable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSendable.swift; sourceTree = "<group>"; };
+		84BED5DB208E7DA4002025E6 /* UserPassRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPassRequest.swift; sourceTree = "<group>"; };
 		84EF16522089A29D00517A5A /* NetworkErrorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorViewController.swift; sourceTree = "<group>"; };
 		84FBAD532072EB3100D8E815 /* PlansAPIStruct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlansAPIStruct.swift; sourceTree = "<group>"; };
 		84FBAD572072EFA100D8E815 /* Plan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Plan.swift; sourceTree = "<group>"; };
@@ -197,14 +201,16 @@
 		84550C2820735882009EB455 /* Structs */ = {
 			isa = PBXGroup;
 			children = (
-				8441E32E207BF39A002EE2D0 /* Token.swift */,
 				84FBAD532072EB3100D8E815 /* PlansAPIStruct.swift */,
 				84550C2620735339009EB455 /* TechsAPIStruct.swift */,
 				8441E330207C5C02002EE2D0 /* UserAPIStruct.swift */,
 				84550C2020735092009EB455 /* ScheduledVisitsAPIStruct.swift */,
+				8441E32E207BF39A002EE2D0 /* Token.swift */,
 				84FBAD572072EFA100D8E815 /* Plan.swift */,
 				84550C2420735322009EB455 /* Tech.swift */,
 				8441E32C207AED8D002EE2D0 /* User.swift */,
+				84BED5D9208E674F002025E6 /* UserSendable.swift */,
+				84BED5DB208E7DA4002025E6 /* UserPassRequest.swift */,
 				84550C22207350BC009EB455 /* ScheduledVisit.swift */,
 			);
 			path = Structs;
@@ -510,11 +516,13 @@
 				84550C2720735339009EB455 /* TechsAPIStruct.swift in Sources */,
 				84015F7A2085987900EC2A66 /* LoginPopupViewController.swift in Sources */,
 				842869FC2083A317005038C7 /* ProfileViewController.swift in Sources */,
+				84BED5DC208E7DA4002025E6 /* UserPassRequest.swift in Sources */,
 				84550C23207350BC009EB455 /* ScheduledVisit.swift in Sources */,
 				3F82BBBA2060313E003BE708 /* CalendarViewController.swift in Sources */,
 				84015F7C2085ACD600EC2A66 /* NotificationNameExtension.swift in Sources */,
 				8441E32D207AED8D002EE2D0 /* User.swift in Sources */,
 				844422CC207E6AF100A51E88 /* DateMute.swift in Sources */,
+				84BED5DA208E674F002025E6 /* UserSendable.swift in Sources */,
 				3FA8DDF52058A67900230721 /* AppDelegate.swift in Sources */,
 				84FBAD582072EFA100D8E815 /* Plan.swift in Sources */,
 				84FD875D207341D200885553 /* ContactViewController.swift in Sources */,

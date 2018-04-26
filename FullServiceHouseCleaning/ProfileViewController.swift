@@ -23,21 +23,25 @@ class ProfileViewController: SocketedViewController
     var userVisitsArray = VisitsArray()
     var userVisitsStringArray = [[String]]()
     var selectedVisit = [String]()
+    var sendableUserInfo:UserSendable?
     
     override func viewWillAppear(_ animated: Bool)//before every load
     {
         super.viewWillAppear(animated)
         
-        validateTechsData(deferredUIUpdateFunc:
-        {   () -> Void in
-            self.validatePlansData(deferredUIUpdateFunc:
-            {   () -> Void in
-                self.validateScheduledVisitsData(deferredUIUpdateFunc:
-                {   () -> Void in
-                    self.validateUserInfoData(deferredUIUpdateFunc:self.updateAllData)
-                })
-            })
-        })
+        delegate.validateTechsData
+        {
+            self.delegate.validatePlansData
+            {
+                self.delegate.validateScheduledVisitsData
+                {
+                    self.delegate.validateUserInfoData
+                    {
+                            self.updateAllData()
+                    }
+                }
+            }
+        }
     }
     override func viewDidLoad()//1st load only
     {
@@ -46,7 +50,13 @@ class ProfileViewController: SocketedViewController
         visitPicker.delegate = self
     }
     
-    @IBAction func nameChangeButtonTapped(_ sender: Any) {
+    @IBAction func nameChangeButtonTapped(_ sender: Any)
+    {
+        guard let uploadData = try? JSONEncoder().encode(self.sendableUserInfo!) else
+        {
+            return
+        }
+        self.delegate.socket.emit("update_user", with: [uploadData])
     }
     @IBAction func surnameChangeButtonTapped(_ sender: Any) {
     }
@@ -73,13 +83,15 @@ class ProfileViewController: SocketedViewController
     func updateAllData()
     {
         self.buildUserVisitsArraysAndReload()
-        let user = self.arrayOfUserInfo[0]
+        let user = self.delegate.arrayOfUserInfo[0]
         self.nameTextField.text = user.first_name
         self.surnameTextField.text = user.last_name
         self.streetAddressTextField.text = user.street_address
         self.cszTextField.text = user.city_state_zip
         self.numberTextField.text = user.number
         self.usernameTextField.text = user.username
+        self.planTextField.text = self.delegate.arrayOfPlans[user.plan_id].name
+        self.sendableUserInfo = UserSendable(user: self.delegate.arrayOfUserInfo[0], passwordString: "")
     }
     
     func reloadPicker()
@@ -92,8 +104,8 @@ class ProfileViewController: SocketedViewController
     {
         self.userVisitsArray = VisitsArray()
         self.userVisitsStringArray = [[String]]()
-        let user:User! = self.arrayOfUserInfo[0]
-        for visit in self.arrayOfScheduledVisits
+        let user:User! = self.delegate.arrayOfUserInfo[0]
+        for visit in self.delegate.arrayOfScheduledVisits
         {
             if visit.user_id == user.id
             {
@@ -105,7 +117,7 @@ class ProfileViewController: SocketedViewController
         {
             var string:String?
             var planName:String?
-            for plan in self.arrayOfPlans
+            for plan in self.delegate.arrayOfPlans
             {
                 if plan.id == visit.plan_id
                 {
@@ -114,7 +126,7 @@ class ProfileViewController: SocketedViewController
                 }
             }
             var techName:String?
-            for tech in self.arrayOfTechs
+            for tech in self.delegate.arrayOfTechs
             {
                 if tech.id == visit.tech_id
                 {
@@ -151,9 +163,9 @@ extension ProfileViewController:UIPickerViewDataSource, UIPickerViewDelegate
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?
     {
-        if userVisitsArray.isEmpty || self.arrayOfPlans.isEmpty || self.arrayOfTechs.isEmpty //|| self.arrayOfUserInfo.isEmpty
+        if userVisitsArray.isEmpty || self.delegate.arrayOfPlans.isEmpty || self.delegate.arrayOfTechs.isEmpty //|| self.arrayOfUserInfo.isEmpty
         {
-            return "Loading... "+String(row)
+            return "No Scheduled Visits to show yet!"
         }
         else
         {

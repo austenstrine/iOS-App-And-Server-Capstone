@@ -30,7 +30,6 @@ class NetworkErrorViewController: UIViewController
     
     @IBAction func tryAgainButtonTapped(_ sender: Any)
     {
-        NotificationCenter.default.post(name: .needsNewToken, object: nil)
         performSegue(withIdentifier: "unwindToHome", sender: self)
     }
     

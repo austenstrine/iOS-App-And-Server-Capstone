@@ -37,6 +37,7 @@ class CalendarViewController: SocketedViewController
     var date:String! = ""
     var time:String! = ""
     var didUnwind:Bool! = false
+    var newPlanNeeded:Bool! = true
     let currentDate = Date()
     let currentMonth = Calendar.current.component(.month, from:Date())
     let dm = DateMute()
@@ -46,72 +47,93 @@ class CalendarViewController: SocketedViewController
     override func viewWillAppear(_ animated: Bool)
     {
         super.viewWillAppear(animated)
-        currentPlanLabel.text = "Current Plan: "+planSelected
-        
+        print(self.classForCoder, "\toverride func viewWillAppear\n")
+        self.validateAndUpdateUI()
     }
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        print(self.classForCoder, "\toverride func viewDidLoad\n")
         calendarCollectionView.delegate = self
         calendarCollectionView.dataSource = self
         let month = Calendar.current.component(.month, from: currentDate)
         selectedMonth = dm.convertMonthDigitsToName(monthDigit: month)
-        currentPlanLabel.text = "Current Plan: "+planSelected
-        setTechButtonTitles()
-        if selectedTech == nil
-        {
-            tech1ButtonTapped(tech1Button)
-        }
-        print()
-        getPlansTask().resume()
-        getScheduledVisitsTask().resume()
-        //getTechsTask().resume()
-        validateUserInfoData(deferredUIUpdateFunc:
-        {   () -> Void in
-                self.userAddress = self.arrayOfUserInfo[0].street_address + self.arrayOfUserInfo[0].city_state_zip
-                var planName:String?
-                for plan in self.arrayOfPlans
-                {
-                    if plan.id == self.arrayOfUserInfo[0].plan_id
-                    {
-                        planName = plan.name
-                        break
-                    }
-                }
-                self.planSelected = planName
-        })
-        socket.on("scheduled_visits_updated")
-        {
-            data, ack in
-            let task = self.getScheduledVisitsTask(deferredUIUpdateFunc: self.reloadCalendar)
-            task.resume()
-        }
-        setMonthAndDays()
         // Do any additional setup after loading the view.
+    }
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidAppear(animated)
+        print(self.classForCoder, "\toverride func viewDidAppear\n")
+        currentPlanLabel.text = "Current Plan: "+planSelected
+        
+    }
+    
+    func setDefaultUserData()
+    {
+        print(self.classForCoder, "\tfunc setDefaultUserData\n")
+        if self.newPlanNeeded
+        {
+            self.userAddress = self.delegate.arrayOfUserInfo[0].street_address + self.delegate.arrayOfUserInfo[0].city_state_zip
+            print("###################################################")
+            print("#user address \(self.userAddress)#")
+            print("###################################################")
+            var planName:String?
+            print(self.delegate.arrayOfPlans)
+            for plan in self.delegate.arrayOfPlans
+            {
+                print("plan id checking:\(plan.id), plan id from user info:\(self.delegate.arrayOfUserInfo[0].plan_id)")
+                if String(plan.id) == String(self.delegate.arrayOfUserInfo[0].plan_id)
+                {
+                    print("equal")
+                    planName = plan.name
+                    break
+                }
+                else
+                {
+                    print("not equal")
+                }
+            }
+            self.planSelected = planName
+        }
+        else
+        {
+            self.newPlanNeeded = false
+        }
+    }
+    
+    func validateAndUpdateUI()
+    {
+        print(self.classForCoder, "\tfunc validateAndUpdateUI\n")
+        self.delegate.validateTechsData
+        {
+            self.delegate.validatePlansData
+            {
+                self.delegate.validateUserInfoData
+                {
+                    self.setTechButtonTitles()
+                    self.setDefaultUserData()
+                    self.setMonthAndDays()
+                }
+            }
+        }
     }
     
     @IBAction func unwindToCalendarView(sender: UIStoryboardSegue)
     {
-        print("++++++++++")
-        print("UNWIND TO CALENDAR")
-        print("++++++++++")
+        print(self.classForCoder, "\t@IBAction func unwindToCalendarView\n")
         if let sourceViewController = sender.source as? PlansViewController
         {
             sourceViewController.didUnwind = true
             self.planSelected = sourceViewController.selectedPlanName!
+            self.newPlanNeeded = false
             print("sourceViewController.selectedPlanName! == "+String(sourceViewController.selectedPlanName!))
-            self.socket = sourceViewController.socket
-            self.token = sourceViewController.token
-            self.clientLock = sourceViewController.clientLock
         }
         //self.viewDidLoad()
     }
     
     @IBAction func changePlanTapped(_ sender: Any)
     {
-        print("++++++++++")
-        print("CHANGE PLAN TAPPED")
-        print("++++++++++")
+        print(self.classForCoder, "\t@IBAction func changePlanTapped\n")
         if self.didUnwind == false
         {
             var doesNotHavePlansViewController:Bool! = true
@@ -131,10 +153,7 @@ class CalendarViewController: SocketedViewController
                 print(self.navigationController!.viewControllers)
                 let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "PlansViewController") as! PlansViewController
                 nextViewController.selectedPlanName = self.planSelected
-                nextViewController.socket = self.socket
-                nextViewController.token = self.token
-                nextViewController.clientLock = self.clientLock
-                self.navigationController?.pushViewController(nextViewController, animated: true)
+                self.navigationController!.pushViewController(nextViewController, animated: true)
             }
             else
             {
@@ -147,30 +166,35 @@ class CalendarViewController: SocketedViewController
     
     @IBAction func tech1ButtonTapped(_ sender: Any)
     {
+        print(self.classForCoder, "\t@IBAction func tech1ButtonTapped\n")
         self.selectedTech = self.tech1Button.titleLabel!.text
         calendarCollectionView.backgroundColor = tech1Button.backgroundColor
         calendarCollectionView.reloadData()
     }
     @IBAction func tech2ButtonTapped(_ sender: Any)
     {
+        print(self.classForCoder, "\t@IBAction func tech2ButtonTapped\n")
         self.selectedTech = self.tech2Button.titleLabel!.text
         self.calendarCollectionView.backgroundColor = tech2Button.backgroundColor
         self.calendarCollectionView.reloadData()
     }
     @IBAction func tech3ButtonTapped(_ sender: Any)
     {
+        print(self.classForCoder, "\t@IBAction func tech3ButtonTapped\n")
         self.selectedTech = self.tech3Button.titleLabel!.text
         self.calendarCollectionView.backgroundColor = tech3Button.backgroundColor
         self.calendarCollectionView.reloadData()
     }
     @IBAction func monthLeftTapped(_ sender: Any)
     {
+        print(self.classForCoder, "\t@IBAction func monthLeftTapped\n")
         self.selectedMonth = self.dm.getTheMonthBefore(month: self.selectedMonth)
         self.setMonthAndDays()
         self.calendarCollectionView.reloadData()
     }
     @IBAction func monthRightTapped(_ sender: Any)
     {
+        print(self.classForCoder, "\t@IBAction func monthRightTapped\n")
         self.selectedMonth = self.dm.getTheMonthAfter(month: self.selectedMonth)
         self.setMonthAndDays()
         self.calendarCollectionView.reloadData()
@@ -178,6 +202,7 @@ class CalendarViewController: SocketedViewController
     
     func reloadCalendar()
     {
+        print(self.classForCoder, "\tfunc reloadCalendar\n")
         self.calendarCollectionView.reloadData()
         switch self.selectedTech!
         {
@@ -194,6 +219,7 @@ class CalendarViewController: SocketedViewController
     
     func dertermineAvailability(for cell:CalendarCollectionViewCell) -> CalendarCollectionViewCell
     {
+        print(self.classForCoder, "\tfunc dertermineAvailability\n")
         cell.dayButton.backgroundColor = .white
         cell.dayButton.isUserInteractionEnabled = true
         
@@ -214,9 +240,9 @@ class CalendarViewController: SocketedViewController
         }
         //print("thisCellDateString:"+thisCellDateString)
         
-        var techs = self.arrayOfTechs
+        var techs = self.delegate.arrayOfTechs
         //self.getScheduledVisitsData()
-        for scheduledVisit in self.arrayOfScheduledVisits
+        for scheduledVisit in self.delegate.arrayOfScheduledVisits
         {
             let tech = techs[scheduledVisit.tech_id-1]
             if self.selectedTech! == tech.name
@@ -251,28 +277,20 @@ class CalendarViewController: SocketedViewController
     
     func setTechButtonTitles()
     {
-        func setTitles()
-        {
-            for anyTech in self.arrayOfTechs
-            {
-                self.arrayOfTechs.append(anyTech)
-            }
-            self.tech1Button.setTitle(self.arrayOfTechs[0].name, for: .normal)
-            self.tech2Button.setTitle(self.arrayOfTechs[1].name, for: .normal)
-            self.tech3Button.setTitle(self.arrayOfTechs[2].name, for: .normal)
-        }
+        print(self.classForCoder, "\tfunc setTechButtonTitles\n")
+        self.tech1Button.setTitle(self.delegate.arrayOfTechs[0].name, for: .normal)
+        self.tech2Button.setTitle(self.delegate.arrayOfTechs[1].name, for: .normal)
+        self.tech3Button.setTitle(self.delegate.arrayOfTechs[2].name, for: .normal)
         
-        //print("&&& TechButton Titles Setting &&&")
-        if self.arrayOfTechs.isEmpty
+        if self.selectedTech == nil
         {
-            let task = self.getTechsTask(deferredUIUpdateFunc: setTitles)
-            task.resume()
+            self.tech1ButtonTapped(tech1Button)
         }
-        //print(self.arrayOfTechs)
     }
     
     func setMonthAndDays()
     {
+        print(self.classForCoder, "\tfunc setMonthAndDays\n")
         self.monthLabel.text! = self.selectedMonth
         var day = self.dm.dayOfWeekOfDate(YYYYMMDD: self.selectedYear+self.dm.convertMonthNameToDigits(monthName: self.selectedMonth)+"01")
         self.day1Label.text = day
@@ -293,6 +311,7 @@ class CalendarViewController: SocketedViewController
     
     @objc func calendarCellButtonTapped(withSender sender:IDButton)
     {
+        print(self.classForCoder, "\t@objc func calendarCellButtonTapped\n")
         self.date = sender.ID
         var message = "You are about to schedule a "+self.planSelected+" visit on "
         message = message+self.date+" from "+self.selectedTech!
@@ -316,37 +335,22 @@ class CalendarViewController: SocketedViewController
     
     func uploadAppointmentToDatabase()
     {
-        func validateDataAndRunTask()//chains through to running the upload taskx
+        print(self.classForCoder, "\tfunc uploadAppointmentToDatabase\n")
+        func validateData()//chains through
         {
             //check tech array
-            if self.arrayOfTechs.isEmpty
-            {
-                let task = self.getTechsTask(deferredUIUpdateFunc: checkUserInfo)
-                task.resume()
-            }
-            else
-            {
-                checkUserInfo()
-            }
+            delegate.validateTechsData(deferredUIUpdateFunc: checkUserInfo)
         }
         
         func checkUserInfo()
         {
-            if self.arrayOfUserInfo.isEmpty
-            {
-                let task = self.getUserInfoTask(deferredUIUpdateFunc: uploadAppointment)
-                task.resume()
-            }
-            else
-            {
-                uploadAppointment()
-            }
+            delegate.validateUserInfoData(deferredUIUpdateFunc: uploadAppointment)
         }
         
         func uploadAppointment()
         {
             var tech_id:Int? = nil
-            for tech in self.arrayOfTechs
+            for tech in self.delegate.arrayOfTechs
             {
                 if tech.name == self.selectedTech
                 {
@@ -357,14 +361,16 @@ class CalendarViewController: SocketedViewController
             let appointment = Appointment(
                                           tech_id: tech_id!,
                                           date: self.date,
-                                          user_id: (self.arrayOfUserInfo[0]).id,
+                                          user_id: (self.delegate.arrayOfUserInfo[0]).id,
                                           time: Int(self.time)!,
                                           plan_id: 1)
             guard let uploadData = try? JSONEncoder().encode(appointment) else
             {
                 return
             }
-            let url = URL(string: "http://localhost:3000/scheduled_visits")!
+            delegate.socket.emit("add_scheduled_visit", with: [uploadData])
+            
+            /*let url = URL(string: "http://localhost:3000/scheduled_visits")!
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -389,11 +395,10 @@ class CalendarViewController: SocketedViewController
                     let dataString = String(data: data, encoding: .utf8) {
                     print ("got data: \(dataString)")
                 }
-            }
-            task.resume()
+            }*/
         }//end upload appointment
         
-        validateDataAndRunTask()
+        validateData()//calls first function above that chains to the rest
     }//end uploadAppointmentToDatabase
 
 }
@@ -402,12 +407,11 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
 {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
     {
+        print(self.classForCoder, "\tfunc collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section\n")
         if self.selectedTech == nil
         {
             self.setTechButtonTitles()
-            self.tech1ButtonTapped(self)
         }
-        print("numberOfItemsInSection start")
         let numOfDays:Int! = self.dm.getMonthRangeCount(YYYYMMDD: self.selectedYear+self.dm.convertMonthNameToDigits(monthName: self.selectedMonth)+"01")
         var cgHeight = CGFloat(5*75+10)
         if numOfDays == 28
@@ -420,6 +424,7 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
+        print(self.classForCoder, "\tfunc collectionView(_ collectionView: UICollectionView, cellForItemAt\n")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "calendarCell", for: indexPath) as! CalendarCollectionViewCell
         
         cell.dayButton.setTitle(String(indexPath.row+1), for: UIControlState.normal)
@@ -435,9 +440,9 @@ extension CalendarViewController: UICollectionViewDelegate, UICollectionViewData
     
 }
 
-extension NSMutableData {
-    func appendString(string: String) {
-        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
-        append(data!)
-    }
-}
+//extension NSMutableData {
+//    func appendString(string: String) {
+//        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
+//        append(data!)
+//    }
+//}

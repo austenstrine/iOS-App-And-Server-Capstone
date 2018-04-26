@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct ScheduledVisit: Decodable, Equatable
+struct ScheduledVisit: Codable
 {
     let user_id:Int
     let plan_id: Int

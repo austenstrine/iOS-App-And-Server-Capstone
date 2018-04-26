@@ -17,17 +17,252 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 let express = require('express');
-let connection = require('./connection');
+let mysqlConnection = require('./connection');
 let bodyParser = require ('body-parser');
-let app = express();
+//let app = express();
 let socketserver = require('http').createServer();
 let io = require('socket.io')(socketserver);
-let socketClientsArray = [];
-let activeTokensArray = [];
-connection.init();
+var socketClientsArray = [];
+mysqlConnection.init();
 
+io.on('connect', function(client)
+{
+	// incoming parameters
+	let clientID = client.id;
+	let token = client.handshake.query.token;
+  if (token == "nil")
+  {
+    print("connected: " + client.id)
+  }
+  else
+  {
+      print("connected: " + client.id +" with "+ token)
+  }
+})
+
+io.on('connection', function(client)
+{
+  client.on('disconnect', function(date)
+  {
+    console.log("Client "+client.id+" Disconnected: "+date)
+
+  })
+
+  client.on('plans_request', function(data)
+  {
+    print("Plans REquest Triggered")
+  	let clientID = client.id;
+  	let token = client.handshake.query.token;
+    if(validateSocket(clientID, token) == true)
+    {
+      mysqlConnection.acquire(function(err,con)
+        {
+          con.query('SELECT id, name, rate, description, image FROM plans', function(err, table_rows, fields)
+          {
+            client.emit('plans_data', {'plans':table_rows})
+          })
+        })//end mysqlConnection.acquire(function(err,con)
+    }// end if
+    else
+    {
+      client.emit('needs_new_token')
+    }//end if(validateSocket(clientID, token) == true) else
+  })//end client.on('plans_request', function()
+
+  client.on('techs_request', function(data)
+  {
+    print("Techs REquest Triggered")
+  	let clientID = client.id;
+  	let token = client.handshake.query.token;
+    if(validateSocket(clientID, token) == true)
+    {
+      mysqlConnection.acquire(function(err,con)
+        {
+          con.query('SELECT id, name FROM techs', function(err, table_rows, fields)
+          {
+            client.emit('techs_data', {'techs':table_rows})
+          })
+        })//end mysqlConnection.acquire(function(err,con
+    }//end if
+    else
+    {
+      client.emit('needs_new_token')
+    }//end if(validateSocket(clientID, token) == true) else
+  })//end client.on('techs_request', function()
+
+  client.on('users_request', function(data)
+  {
+    print("Users REquest Triggered")
+    let parsedData = JSON.parse(data.toString())
+    let clientID = client.id;
+    let token = client.handshake.query.token;
+    if(validateSocket(clientID, token) == true)
+    {
+      mysqlConnection.acquire(function(err,con)
+        {
+          con.query('SELECT id, first_name, last_name, username, plan_id, street_address, city_state_zip, active, number FROM users WHERE id = ?', [parsedData.id.toString()], function(err, table_rows, fields)
+          {
+            print("\n\nsending user data for ID: "+parsedData.id+"\n")
+            print(table_rows)
+            client.emit('users_data', {'users':table_rows})
+          })//end con.query(
+        })//end mysqlConnection.acquire(function(err,con)
+    }//end if
+    else
+    {
+      client.emit('needs_new_token')
+    }//end if(validateSocket(clientID, token) == true) else
+  })//end client.on('users_request', function()
+
+  client.on('scheduled_visits_request', function(data)
+  {
+    print("Visits REquest Triggered")
+    let clientID = client.id;
+    let token = client.handshake.query.token;
+    if(validateSocket(clientID, token) == true)
+    {
+      mysqlConnection.acquire(function(err,con)
+        {
+          con.query('', function(err, table_rows, fields)
+          {
+            client.emit('scheduled_visits_data', {'scheduled_visits':table_rows})
+          })
+        })//end mysqlConnection.acquire(function(err,con)
+    }//end if
+    else
+    {
+      client.emit('needs_new_token')
+    }//end if(validateSocket(clientID, token) == true) else
+  })//end client.on('scheduled_visits_request', function(data)
+
+  client.on('user_pass_req',function(data)
+  {
+    print("Entered client.on('user_pass_req',function(data)")
+    let parsedData = JSON.parse(data.toString())
+    print('parsed data')
+    let username = parsedData.user
+    print('username')
+    let password = parsedData.pass
+    print('password')
+    mysqlConnection.acquire(function(err,con)
+      {
+        if (err != null)
+        {
+          print(err)
+        }
+        console.log('user/pass request processing')
+        //console.log(request.body);
+        let token = "";
+        let rows;
+        con.query('SELECT * FROM users', function(err, table_rows, fields)
+        {
+          rows = table_rows;
+          let emitError = true;
+          for(let i = 0; i < rows.length; i++)
+          {
+            if (rows[i].username == username)
+            {
+              if (rows[i].password == password)
+              {
+                emitError = false;
+                token = makeTokenData();
+
+                console.log("Sent Token Response, printing socketClientsArray jsObject")
+                client.emit("reconnect_with_token", {'token':token, 'id':rows[i].id})
+                print({"token":token, "username":username}.toString())
+              }//end if pass
+            }//end if user
+          }//end for
+          if(emitError)
+          {
+            print("Incorrect auth, emitting error")
+            client.emit("incorrect_auth")
+          }
+
+          con.release()
+        })
+      })
+  })
+
+  client.on('add_scheduled_visit', function(data)
+  {
+    print("Add Scheduled Visit REquest Triggered")
+    let parsedData = JSON.parse(data.toString())
+  	let clientID = client.id;
+  	let token = client.handshake.query.token;
+    if(validateSocket(clientID, token) == true)
+    {
+      mysqlConnection.acquire(function(err,con)
+        {
+          con.query('INSERT INTO scheduled_visits VALUES (null,?,?,?,?,?)',[parsedData.tech_id ,parsedData.date, parsedData.user_id, parsedData.time, parsedData.plan_id], function(err, table_rows, fields)
+          {
+            emitVisitsNeedUpdate()
+          })
+        })//end mysqlConnection.acquire(function(err,con)
+    }// end if
+    else
+    {
+      client.emit('needs_new_token')
+    }//end if(validateSocket(clientID, token) == true) else
+  })//end client.on('plans_request', function()
+})
+
+function emitVisitsNeedUpdate()
+{
+  let connectedSocketsToEmit = io.sockets.connected;
+  console.log(connectedSocketsToEmit);
+  for (let i = 0; i <connectedSocketsToEmit.length; i++)
+  {
+    connectedSocketsToEmit[i].emit('scheduled_visits_updated')
+  }
+}
+
+function makeTokenData()
+{
+  let data = "";
+  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < 64; i++)
+    data += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return data;
+}
+
+function validateSocket(clientID, token)
+{
+  let activeSockets = io.sockets.connected;
+  print(activeSockets+"")
+  print(activeSockets[clientID]+"")
+  print(clientID)
+  if (clientID in activeSockets)
+  {
+    let socket = activeSockets[clientID];
+    if (socket.id == clientID)
+    {
+      print("Found matching socket:"+socket.toString())
+      print("Checking Token:"+socket.handshake.query.token.toString())
+      if(socket.handshake.query.token == token)
+      {
+        return true;
+      }//end if(socket.handshake.query.token == token)
+    }//end if (socket.id == clientID)
+  }//end if
+  else
+  {
+    return false;
+  }//end if (clientID in activeSockets) else\
+}
+
+function print(string)
+{
+  console.log(":"+string)
+}
+
+socketserver.listen(8080); // Socket.IO, port 8080
+//app.listen (3000); // API, port 3000
+
+/* 90% my code
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 app.use(bodyParser.json({type: 'application/vnd.api+json'}));
@@ -51,7 +286,7 @@ function(request,response)
   });//end activeTokensArray.forEach&function
   if (isInArray)
   {
-    connection.acquire(
+    mysqlConnection.acquire(
     function(err, con)
     {
       con.query('SELECT id, first_name, last_name, username, plan_id, street_address, city_state_zip, active, number from users WHERE id = ? LIMIT 1',
@@ -74,10 +309,12 @@ function(request,response)
   }
 });//end app.get&function
 
+//not sure why this has to be POST
+//post? call to validate user/pass combination
 app.post ('/user',
 function(request,response)
 {
-  connection.acquire(
+  mysqlConnection.acquire(
   function(err,con)
   {
     console.log('user/pass request processing');
@@ -150,7 +387,7 @@ app.get ('/plans', function (request, response)
   })
   if (validToken)
   {
-    connection.acquire(function(err, con)
+    mysqlConnection.acquire(function(err, con)
     {
       con.query('SELECT id, name, rate, description, image FROM plans',
       function(err, rows, fields)
@@ -159,7 +396,7 @@ app.get ('/plans', function (request, response)
         response.send({plans: rows});
         con.release();
       })//end query&function
-    });//end connection.acquire&function
+    });//end mysqlConnection.acquire&function
   }
   else
   {
@@ -185,7 +422,7 @@ app.get ('/scheduled_visits', function (request, response)
   })
   if (validToken)
   {
-    connection.acquire(function(err, con)
+    mysqlConnection.acquire(function(err, con)
     {
       con.query('SELECT id, tech_id, date, user_id, time, plan_id FROM scheduled_visits',
       function(err, rows, fields)
@@ -221,7 +458,7 @@ app.get ('/techs', function (request, response)
   })
   if (validToken)
   {
-    connection.acquire(function(err, con)
+    mysqlConnection.acquire(function(err, con)
     {
       con.query('SELECT id, name FROM techs',
       function(err, rows, fields)
@@ -242,10 +479,9 @@ app.get ('/techs', function (request, response)
   }//end if active token
 });
 
-// POST call to add a headline into a newsgroup
 app.post('/plans', function(request, response)
 {
-  connection.acquire(function(err, con)
+  mysqlConnection.acquire(function(err, con)
   {
     console.log(request.body)
     con.query('INSERT INTO plans VALUES (null,?,?,?,?)' , [request.query.name, request.query.rate, request.query.description, request.query.image], function(err, rows, fields)
@@ -256,10 +492,9 @@ app.post('/plans', function(request, response)
   });
 });
 
-// POST call to add a headline into a newsgroup
 app.post('/scheduled_visits', function(request, response)
 {
-  connection.acquire(function(err, con)
+  mysqlConnection.acquire(function(err, con)
   {
     console.log("Posting to scheduled_visits, printing request.body")
     console.log(request.body)
@@ -269,132 +504,7 @@ app.post('/scheduled_visits', function(request, response)
       console.log(request.body.tech_id, request.body.date, request.body.user_id, request.body.time, request.body.plan_id);
       response.send({message: "record inserted"});
       con.release();
-      emitVisitEvent();
+      emitVisitsNeedUpdate();
     })
   });
-});
-
-function emitVisitEvent()
-{
-  let connectedSocketsToEmit = io.sockets.connected;
-  console.log(connectedSocketsToEmit);
-  socketClientsArray.forEach(function(connectedSocket)
-  {
-    connectedSocketsToEmit[connectedSocket.socketid].emit('scheduled_visits_updated')
-  })
-}
-
-/*
-
-// POST call to add a headline into a newsgroup
-app.post('/headline', function(request, response) {
-connection.acquire(function(err, con)
-    {
-     con.query('INSERT INTO headlines VALUES (null,?,?)' , [request.query.newsgroup, request.query.headline], function(err, rows, fields)
-      {
-      		response.send({message: "record inserted"});
-          	con.release();
-          	emitHeadlineEvent();
-         })
-      });
-});
-
-// check to see if a connected token is inside a usergroup, if so emit an update that headline has been updated
-function emitHeadlineEvent()
-{
-	connection.acquire(function(err, con)
-  {
-    // query to see the tokens associated with users that are in a newsgroup
-     con.query('SELECT DISTINCT user_id, users.token FROM user_newsgroups JOIN users ON user_newsgroups.user_id = users.userID' , function(err, rows, fields)
-      {
-      		let headlineTokensArray = [];
-      		let connectedTokensArray = [];
-      		let connectedSocketsArray = [];
-      		let socketsToGetEventArray = [];
-
-      		rows.forEach(function(value)
-      		{
-      			// put query values into an array to compare with tokens that are connected
-      			headlineTokensArray.push (value.token);
-      		})
-      		con.release(); // release database connection while we iterate through the arrays
-
-      		socketClientsArray.forEach(function(value)
-    			{
-    				connectedSocketsArray.push (value.socketid);
-    				connectedTokensArray.push (value.token);
-    			});
-
-      		// now compare headline tokens from database to those client tokens that are connected with a live socket
-      		let connectionsToReceiveArray = connectedTokensArray.filter((n) => headlineTokensArray.includes(n))
-
-      		connectionsToReceiveArray.forEach(function(value)
-    			{
-    				socketClientsArray.forEach(function(socket_value)
-    				{
-    					//if there is a match on the token, loop through the connection objects to get the socketID
-    					if (value == socket_value.token)
-    					{
-    						// check this is a connected socketID
-     						if (io.sockets.connected[socket_value.socketid])
-          					{
-          						// if checks out that this is a connected socket emit the event to socketID
-       			 				io.sockets.connected[socket_value.socketid].emit('headlines_updated');
-    						};
-
-    						// print to console current socket being emitted to
-    						console.log (socket_value.socketid);
-    					}
-    				})
-    			});
-    })
-  });
-};*/
-
-
-// event called on Socket.IO connection
-io.on('connect', function(client)
-{
-	// incoming parameters
-	let clientID = client.id;
-	let token = client.handshake.query.token;
-	console.log ("connected: " + client.id); // print to console the incoming socket ID
-
-	// remove any existing socket connections from array that are
-	// different than the incoming token
-
-	for (let i = 0; i < socketClientsArray.length; i++)
-	{
-    if (socketClientsArray[i].token == token)
- 		{
- 			if (i > -1)
- 			{
-        socketClientsArray.splice(i, 1);
-			};
-		};
-	};
-
-	// create an object with the socketID and the token that's associated with
-	let clientConnection = {};
-	clientConnection.socketid = clientID;
-	clientConnection.token = token;
-	socketClientsArray.push(clientConnection);
-})
-
-io.on('disconnect', function(client){
-  console.log("Client "+client.id+" Disconnected")
-})
-
-socketserver.listen(8080); // Socket.IO, port 8080
-app.listen (3000); // API, port 3000
-
-function makeTokenData()
-{
-  let data = "";
-  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < 64; i++)
-    data += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return data;
-}
+});*/

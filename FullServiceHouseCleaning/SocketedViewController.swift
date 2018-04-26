@@ -13,127 +13,34 @@ typealias VoidFunc = () -> Void
 
 class SocketedViewController: UIViewController
 {
-    let manager = SocketManager(socketURL: URL(string: "http://localhost:8080")!,config:[.log(true), .connectParams(["token": "asliwemx"])])
-    
-    var clientLock = NSLock()
-    var token:String?
-    var socket:SocketIOClient!
-    var arrayOfPlans = PlansArray()
-    var arrayOfScheduledVisits = VisitsArray()
-    var arrayOfTechs = TechsArray()
-    var arrayOfUserInfo = UsersArray()
-    var gotNewTokenObserver: NSObjectProtocol?
-    var needsNewTokenObserver: NSObjectProtocol?
+    var delegate = UIApplication.shared.delegate as! AppDelegate
     var backOnceUnwindSegue: UIStoryboardSegue?
 
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
-    {
-        let destinationViewController = segue.destination as! SocketedViewController
-        destinationViewController.socket = self.socket
-        destinationViewController.token = self.token
-        destinationViewController.clientLock = self.clientLock
-    }
-    
-    override func viewWillAppear(_ animated: Bool)
-    {
-        if self.socket == nil, self.classForCoder != LoginPopupViewController.classForCoder()
-        {
-            self.socket = manager.defaultSocket
-            self.socket.connect()
-            self.setSocketEvents()
-        }
-        self.gotNewTokenObserver = NotificationCenter.default.addObserver(forName: Notification.Name.gotNewToken, object: nil, queue: .main, using:
-            { (notification) in
-                let popupViewController = notification.object as! LoginPopupViewController
-                self.token = popupViewController.token
-        })
-        if self.needsNewTokenObserver == nil
-        {
-            self.needsNewTokenObserver = NotificationCenter.default.addObserver(forName: Notification.Name.needsNewToken, object: nil, queue: .main, using:
-                { (notification) in
-                    self.token = nil
-            })
-        }
-    }
-    
-//    override func viewDidAppear(_ animated: Bool)
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
 //    {
+//        print(self.classForCoder, "\noverride func prepare(for segue: UIStoryboardSegue, sender: Any?)")
+//        let destinationViewController = segue.destination as! SocketedViewController
 //    }
     
-    override func viewDidDisappear(_ animated: Bool)
-    {
-        super.viewDidDisappear(animated)
-        if let observer = gotNewTokenObserver
-        {
-            NotificationCenter.default.removeObserver(observer)
-        }
-    }
-
-    override func didReceiveMemoryWarning()
-    {
-        super.didReceiveMemoryWarning()
-        self.arrayOfPlans = PlansArray()
-        self.arrayOfScheduledVisits = VisitsArray()
-        self.arrayOfTechs = TechsArray()
-        self.arrayOfUserInfo = UsersArray()
-    }
     
-    private func setSocketEvents()
-    {
-        self.socket.on(clientEvent: .connect)
-        {
-            data, ack in
-            print("\n\nCONNECTED\n\n")
-            
-            DispatchQueue.global(qos: .background).async
-            {
-                if self.token == nil, self.classForCoder != LoginPopupViewController.classForCoder()
-                {
-                    DispatchQueue.main.async
-                    {
-                        let nextView = self.storyboard!.instantiateViewController(withIdentifier: "loginPopupViewController") as? LoginPopupViewController
-                        self.navigationController!.pushViewController(nextView!, animated: true)
-                    }
-                }
-            }
-        }
-        self.socket.on(clientEvent: .disconnect)
-        {
-            data, ack in
-            print("\n\nDISCONNECTED\n\n")
-            NotificationCenter.default.post(name: .needsNewToken, object: nil)
-            
-        }
-        self.socket.on(clientEvent: .error)
-        {
-            data, ack in
-            let length = self.navigationController!.viewControllers.count
-            if self.navigationController!.viewControllers[length-1].classForCoder != NetworkErrorViewController.classForCoder()
-            {
-                let nextView = self.storyboard!.instantiateViewController(withIdentifier: "networkErrorViewController") as! NetworkErrorViewController
-                print(nextView)
-                print(self.navigationController!)
-                self.navigationController!.pushViewController(nextView, animated: true)
-            }
-        }
-    }
+//    func checkSocket(every seconds:Int)
+//    {
+//        func printSocketStatus()
+//        {
+//            DispatchQueue.global(qos: .background).async
+//                {
+//                    print(self.socket.status)
+//                    sleep(UInt32(seconds))
+//                    printSocketStatus()
+//                }
+//        }
+//        printSocketStatus()
+//    }
+    
 //Plans
     
-    func validatePlansData(deferredUIUpdateFunc:@escaping VoidFunc)
-    {
-        if self.arrayOfPlans.isEmpty
-        {
-            let task = self.getPlansTask(deferredUIUpdateFunc:deferredUIUpdateFunc)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
-        {
-            deferredUIUpdateFunc()
-        }
-    }
     
-    func getPlansTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getPlansTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
     {
         print("***Plans Entered***")
         let jsonURLString:String = "http://localhost:3000/plans/?token="+self.token!
@@ -161,18 +68,18 @@ class SocketedViewController: UIViewController
                 print("***Plan Data Failed!***")
                 return
             }//if data can't be assigned, exit.
-            
+
             var arrayOfPlans = PlansArray()
-            
+
             do
             {
                 let plansAPIStruct = try JSONDecoder().decode(PlansAPIStruct.self, from: data)//grab data from server
-                
+
                 for item in plansAPIStruct.plans
                 {
                     arrayOfPlans.append(item)
                 }
-                
+
             }
             catch let jsonErr
             {
@@ -187,24 +94,13 @@ class SocketedViewController: UIViewController
     func getPlansTask() -> URLSessionDataTask
     {
         return self.getPlansTask(deferredUIUpdateFunc: {() in})
-    }
+    }*/
+    
 //Scheduled Visits
     
-    func validateScheduledVisitsData(deferredUIUpdateFunc:@escaping VoidFunc)
-    {
-        if self.arrayOfScheduledVisits.isEmpty
-        {
-            let task = self.getScheduledVisitsTask(deferredUIUpdateFunc:deferredUIUpdateFunc)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
-        {
-            deferredUIUpdateFunc()
-        }
-    }
     
-    func getScheduledVisitsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    
+    /*func getScheduledVisitsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/scheduled_visits/?token="+self.token!
         //print("@@@ visits URL @@@"+jsonURLString)
@@ -255,25 +151,12 @@ class SocketedViewController: UIViewController
     func getScheduledVisitsTask() -> URLSessionDataTask
     {
         return self.getScheduledVisitsTask(deferredUIUpdateFunc:{() in})
-    }
+    }*/
     
 //Techs
     
-    func validateTechsData(deferredUIUpdateFunc:@escaping VoidFunc)
-    {
-        if self.arrayOfTechs.isEmpty
-        {
-            let task = self.getTechsTask(deferredUIUpdateFunc:deferredUIUpdateFunc)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
-        {
-            deferredUIUpdateFunc()
-        }
-    }
     
-    func getTechsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getTechsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/techs/?token="+self.token!
         //print("@@@ Techs URL @@@"+jsonURLString)
@@ -325,25 +208,11 @@ class SocketedViewController: UIViewController
     func getTechsTask() -> URLSessionDataTask
     {
         return self.getTechsTask(deferredUIUpdateFunc:{() in})
-    }
+    }*/
     
 //User Info
     
-    func validateUserInfoData(deferredUIUpdateFunc:@escaping VoidFunc)
-    {
-        if self.arrayOfUserInfo.isEmpty
-        {
-            let task = self.getUserInfoTask(deferredUIUpdateFunc:deferredUIUpdateFunc)
-            task.resume()
-            //will create a data task that updates/initializes the arrayOfPlans and calls the deferredUIUpdateFunc after it has done so. Prevents data access before data exists
-        }
-        else
-        {
-            deferredUIUpdateFunc()
-        }
-    }
-    
-    func getUserInfoTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getUserInfoTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/userinfo/?token="+self.token!
         //print("@@@ UserInfo URL @@@"+jsonURLString)
@@ -396,6 +265,6 @@ class SocketedViewController: UIViewController
     func getUserInfoTask() -> URLSessionDataTask
     {
         return self.getUserInfoTask(deferredUIUpdateFunc:{() in})
-    }
+    }*/
 
 }

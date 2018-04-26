@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct Plan: Decodable, Equatable
+struct Plan: Codable
 {
     let id:Int;
     let name: String;

@@ -8,7 +8,7 @@
 
 import UIKit
 
-struct Tech: Decodable, Equatable
+struct Tech: Codable
 {
     let id:Int
     let name:String

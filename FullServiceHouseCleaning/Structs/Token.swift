@@ -11,8 +11,10 @@ import UIKit
 struct Token: Decodable
 {
     let token:String
+    let id:Int
     init (json:[String:Any])
     {
         token = json["token"] as? String ?? ""
+        id = json["id"] as? Int ?? -1
     }
 }

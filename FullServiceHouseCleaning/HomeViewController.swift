@@ -10,33 +10,42 @@
 import UIKit
 import SocketIO
 
-class HomeViewController: SocketedViewController {
+class HomeViewController: SocketedViewController
+{
 
+    @IBAction func buttonAction(_ sender: Any) {
+        delegate.socket.emit("plans_request")
+    }
     override func didReceiveMemoryWarning()
     {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("\n\nHome viewDidLoad()\n\n")
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
         print("\n\nHome viewDidAppear\n\n")
-        print(self.socket.status)
-        if self.socket.status != .connected
+        delegate.validateSocket(rebuildSocket: false)
+        print(delegate.socket.status)
+        if delegate.socket.status != .connected
         {
             print("\n\nConnecting, not connected.\n\n")
-            self.socket.connect()
+            delegate.connectSocket()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.delegate.validateAllData()
     }
     
     @IBAction func unwindToHome(segue:UIStoryboardSegue)
     {
-        
-        if let sourceViewController = segue.source as? SocketedViewController
-        {
-            self.token = sourceViewController.token
-        }
+        //self.delegate.validateAllData()
     }
     
     
