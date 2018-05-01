@@ -22,14 +22,27 @@ struct User: Codable
     
     init (json: [String:Any])
     {
-        id = json["id"] as? Int ?? -1
-        first_name = json["first_name"] as? String ?? ""
-        last_name = json["last_name"] as? String ?? ""
-        plan_id = json["plan_id"] as? Int ?? -1
-        street_address = json["street_address"] as? String ?? ""
-        city_state_zip = json["city_state_zip"] as? String ?? ""
-        active = json["active"] as? Int ?? -1
-        number = json["number"] as? String ?? ""
-        username = json["username"] as? String ?? ""
+        id = json[UserStrings.id] as? Int ?? -1
+        first_name = json[UserStrings.first_name] as? String ?? ""
+        last_name = json[UserStrings.last_name] as? String ?? ""
+        plan_id = json[UserStrings.plan_id] as? Int ?? -1
+        street_address = json[UserStrings.street_address] as? String ?? ""
+        city_state_zip = json[UserStrings.city_state_zip] as? String ?? ""
+        active = json[UserStrings.active] as? Int ?? -1
+        number = json[UserStrings.number] as? String ?? ""
+        username = json[UserStrings.username] as? String ?? ""
     }
+}
+
+struct UserStrings
+{
+    static let id = "id"
+    static let first_name = "first_name"
+    static let last_name = "last_name"
+    static let plan_id = "plan_id"
+    static let street_address = "street_address"
+    static let city_state_zip = "city_state_zip"
+    static let active = "active"
+    static let number = "number"
+    static let username = "username"
 }

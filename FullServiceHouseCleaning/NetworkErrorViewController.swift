@@ -13,24 +13,33 @@ class NetworkErrorViewController: UIViewController
 
     override func viewWillAppear(_ animated: Bool)
     {
-        if self.navigationController != nil
+        DispatchQueue.main.async
         {
-            self.navigationController!.isNavigationBarHidden = true
+            if self.navigationController != nil
+            {
+                self.navigationController!.isNavigationBarHidden = true
+            }
         }
     }
     
     override func viewWillDisappear(_ animated: Bool)
     {
         super.viewWillDisappear(animated)
-        if self.navigationController != nil
-        {
-            self.navigationController!.isNavigationBarHidden = false
-        }
+        
     }
     
     @IBAction func tryAgainButtonTapped(_ sender: Any)
     {
+        if self.navigationController != nil
+        {
+            self.navigationController!.isNavigationBarHidden = false
+        }
         performSegue(withIdentifier: "unwindToHome", sender: self)
+        DispatchQueue.main.async
+        {
+            (UIApplication.shared.delegate as! AppDelegate).validateSocket(rebuildSocket: true)
+        }
+        
     }
     
     /*

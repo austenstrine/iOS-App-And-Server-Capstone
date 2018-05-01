@@ -11,16 +11,47 @@ import SocketIO
 
 typealias VoidFunc = () -> Void
 
-class SocketedViewController: UIViewController
+class DelegatedViewController: UIViewController
 {
     var delegate = UIApplication.shared.delegate as! AppDelegate
     var backOnceUnwindSegue: UIStoryboardSegue?
 
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
-//    {
-//        print(self.classForCoder, "\noverride func prepare(for segue: UIStoryboardSegue, sender: Any?)")
-//        let destinationViewController = segue.destination as! SocketedViewController
-//    }
+    override func viewDidLoad()
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewDidLoad() DVC")
+    }
+    
+    override func viewWillAppear(_ animated: Bool)
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewWillAppear(_ animated: Bool) DVC")
+    }
+    
+    override func viewDidAppear(_ animated: Bool)
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewDidAppear(_ animated: Bool) DVC")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool)
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewWillDisappear(_ animated: Bool) DVC")
+    }
+    
+    override func viewDidDisappear(_ animated: Bool)
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewDidDisappear(_ animated: Bool) DVC")
+        delegate.resetValidationBools()
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
+    {
+        print("\n", self.classForCoder, Thread.current,"\n\n"+"override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) DVC")
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        super.prepare(for: segue, sender: sender)
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"override func prepare(for segue: UIStoryboardSegue, sender: Any?) DVC")
+    }
     
     
 //    func checkSocket(every seconds:Int)
@@ -29,7 +60,7 @@ class SocketedViewController: UIViewController
 //        {
 //            DispatchQueue.global(qos: .background).async
 //                {
-//                    print(self.socket.status)
+//                    //print(self.socket.status)
 //                    sleep(UInt32(seconds))
 //                    printSocketStatus()
 //                }
@@ -40,32 +71,32 @@ class SocketedViewController: UIViewController
 //Plans
     
     
-    /*func getPlansTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getPlansTask(mainThreadCompletionHandler:@escaping VoidFunc) -> URLSessionDataTask
     {
-        print("***Plans Entered***")
+        //print("***Plans Entered***")
         let jsonURLString:String = "http://localhost:3000/plans/?token="+self.token!
-        //print("@@@ Plans URL @@@"+jsonURLString)
+        ////print("@@@ Plans URL @@@"+jsonURLString)
         guard let url = URL(string: jsonURLString) else
         {
-            print("***Plan URL Failed!***")
+            //print("***Plan URL Failed!***")
             return URLSessionDataTask()
         }
         let plansDataTask = URLSession.shared.dataTask(with: url)
         {
             (data, response, err) in
             self.clientLock.lock()
-            print("plans got lock")
+            //print("plans got lock")
             defer
             {
-                print("plans releasing lock")
+                //print("plans releasing lock")
                 self.clientLock.unlock()
                 DispatchQueue.main.async {
-                    deferredUIUpdateFunc()
+                    mainThreadCompletionHandler()
                 }
             }
             guard let data = data else
             {
-                print("***Plan Data Failed!***")
+                //print("***Plan Data Failed!***")
                 return
             }//if data can't be assigned, exit.
 
@@ -85,28 +116,28 @@ class SocketedViewController: UIViewController
             {
                 print ("error: ", jsonErr)
             }
-            print("<<<PLANS>>>")
+            //print("<<<PLANS>>>")
             self.arrayOfPlans = arrayOfPlans
-            print(self.arrayOfPlans)
+            //print(self.arrayOfPlans)
         }
         return plansDataTask
     }
     func getPlansTask() -> URLSessionDataTask
     {
-        return self.getPlansTask(deferredUIUpdateFunc: {() in})
+        return self.getPlansTask(mainThreadCompletionHandler: {() in})
     }*/
     
 //Scheduled Visits
     
     
     
-    /*func getScheduledVisitsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getScheduledVisitsTask(mainThreadCompletionHandler:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/scheduled_visits/?token="+self.token!
-        //print("@@@ visits URL @@@"+jsonURLString)
+        ////print("@@@ visits URL @@@"+jsonURLString)
         guard let url = URL(string: jsonURLString) else
         {
-            print("***Visit URL Failed!***")
+            //print("***Visit URL Failed!***")
             return URLSessionDataTask()
         }
         let scheduledVisitsDataTask = URLSession.shared.dataTask(with: url)
@@ -114,18 +145,18 @@ class SocketedViewController: UIViewController
             (data, response, err) in
             
             self.clientLock.lock()
-            print("visits got lock")
+            //print("visits got lock")
             defer
             {
-                print("visits releasing lock")
+                //print("visits releasing lock")
                 self.clientLock.unlock()
                 DispatchQueue.main.async {
-                    deferredUIUpdateFunc()
+                    mainThreadCompletionHandler()
                 }
             }
             guard let data = data else
             {
-                print("***Visit Data Failed!***")
+                //print("***Visit Data Failed!***")
                 return
             }//if data can't be assigned, exit.
             
@@ -150,19 +181,19 @@ class SocketedViewController: UIViewController
     }
     func getScheduledVisitsTask() -> URLSessionDataTask
     {
-        return self.getScheduledVisitsTask(deferredUIUpdateFunc:{() in})
+        return self.getScheduledVisitsTask(mainThreadCompletionHandler:{() in})
     }*/
     
 //Techs
     
     
-    /*func getTechsTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getTechsTask(mainThreadCompletionHandler:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/techs/?token="+self.token!
-        //print("@@@ Techs URL @@@"+jsonURLString)
+        ////print("@@@ Techs URL @@@"+jsonURLString)
         guard let url = URL(string: jsonURLString) else
         {
-            print("***TEch URL Failed!***")
+            //print("***TEch URL Failed!***")
             return URLSessionDataTask()
         }
         let techsDataTask = URLSession.shared.dataTask(with: url)
@@ -170,18 +201,18 @@ class SocketedViewController: UIViewController
             (data, response, err) in
             
             self.clientLock.lock()
-            print("techs got lock")
+            //print("techs got lock")
             defer
             {
-                print("techs releasing lock")
+                //print("techs releasing lock")
                 self.clientLock.unlock()
                 DispatchQueue.main.async {
-                    deferredUIUpdateFunc()
+                    mainThreadCompletionHandler()
                 }
             }
             guard let data = data else
             {
-                print("***Tech Data Failed!***")
+                //print("***Tech Data Failed!***")
                 return
             }//if data can't be assigned, exit.
             
@@ -207,18 +238,18 @@ class SocketedViewController: UIViewController
     }
     func getTechsTask() -> URLSessionDataTask
     {
-        return self.getTechsTask(deferredUIUpdateFunc:{() in})
+        return self.getTechsTask(mainThreadCompletionHandler:{() in})
     }*/
     
 //User Info
     
-    /*func getUserInfoTask(deferredUIUpdateFunc:@escaping VoidFunc) -> URLSessionDataTask
+    /*func getUserInfoTask(mainThreadCompletionHandler:@escaping VoidFunc) -> URLSessionDataTask
     {
         let jsonURLString:String = "http://localhost:3000/userinfo/?token="+self.token!
-        //print("@@@ UserInfo URL @@@"+jsonURLString)
+        ////print("@@@ UserInfo URL @@@"+jsonURLString)
         guard let url = URL(string: jsonURLString) else
         {
-            print("***User URL Failed!***")
+            //print("***User URL Failed!***")
             return URLSessionDataTask()
         }
         let userInfoDataTask = URLSession.shared.dataTask(with: url)
@@ -226,28 +257,28 @@ class SocketedViewController: UIViewController
             (data, response, err) in
             
             self.clientLock.lock()
-            print("users got lock")
+            //print("users got lock")
             defer
             {
-                print("users releasing lock")
+                //print("users releasing lock")
                 self.clientLock.unlock()
                 DispatchQueue.main.async {
-                    deferredUIUpdateFunc()
+                    mainThreadCompletionHandler()
                 }
             }
             guard let data = data else
             {
-                print("***User Data Failed!***")
+                //print("***User Data Failed!***")
                 return
             }//if data can't be assigned, exit.
-            print("&&& UserInfo Data to follow &&&")
-            //print(data)
+            //print("&&& UserInfo Data to follow &&&")
+            ////print(data)
             do
             {
-                print("Entered userinfo do")
+                //print("Entered userinfo do")
                 let userInfo = try JSONDecoder().decode(UserAPIStruct.self, from: data)//grab data from server
-                //print(userInfo)
-                //print("***user data above***")
+                ////print(userInfo)
+                ////print("***user data above***")
                 var arrayOfUsers = UsersArray()
                 for item in userInfo.user
                 {
@@ -264,7 +295,7 @@ class SocketedViewController: UIViewController
     }
     func getUserInfoTask() -> URLSessionDataTask
     {
-        return self.getUserInfoTask(deferredUIUpdateFunc:{() in})
+        return self.getUserInfoTask(mainThreadCompletionHandler:{() in})
     }*/
 
 }

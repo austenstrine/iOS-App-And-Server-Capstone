@@ -10,271 +10,198 @@ import UIKit
 
 struct DateMute
 {
-    let monday = "MONDAY"
-    let tuesday = "TUESDAY"
-    let wednesday = "WEDNESDAY"
-    let thursday = "THURSDAY"
-    let friday = "FRIDAY"
-    let saturday = "SATURDAY"
-    let sunday = "SUNDAY"
+    static let MONDAY = "MONDAY"
+    static let TUESDAY = "TUESDAY"
+    static let WEDNESDAY = "WEDNESDAY"
+    static let THURSDAY = "THURSDAY"
+    static let FRIDAY = "FRIDAY"
+    static let SATURDAY = "SATURDAY"
+    static let SUNDAY = "SUNDAY"
     
-    private let dayAfterDict_caps = [
-        "MONDAY":"TUESDAY",
-        "TUESDAY" :"WEDNESDAY",
-        "WEDNESDAY":"THURSDAY",
-        "THURSDAY":"FRIDAY",
-        "FRIDAY":"SATURDAY",
-        "SATURDAY":"SUNDAY",
-        "SUNDAY":"MONDAY"
+    static let JANUARY = "JANUARY"
+    static let janAs01 = "01"
+    static let janAs1 = "1"
+    static let FEBRUARY = "FEBRUARY"
+    static let febAs02 = "02"
+    static let febAs2 = "2"
+    static let MARCH = "MARCH"
+    static let marAs03 = "03"
+    static let marAs3 = "3"
+    static let APRIL = "APRIL"
+    static let aprAs04 = "04"
+    static let aprAs4 = "4"
+    static let MAY = "MAY"
+    static let mayAs05 = "05"
+    static let mayAs5 = "5"
+    static let JUNE = "JUNE"
+    static let junAs06 = "06"
+    static let junAs6 = "6"
+    static let JULY = "JULY"
+    static let julAs07 = "07"
+    static let julAs7 = "7"
+    static let AUGUST = "AUGUST"
+    static let augAs08 = "08"
+    static let augAs8 = "8"
+    static let SEPTEMBER = "SEPTEMBER"
+    static let sepAs09 = "09"
+    static let sepAs9 = "9"
+    static let OCTOBER = "OCTOBER"
+    static let octAs10 = "10"
+    static let NOVEMBER = "NOVEMBER"
+    static let novAs11 = "11"
+    static let DECEMBER = "DECEMBER"
+    static let decAs12 = "12"
+    
+    private static let dayAfterDict_caps = [
+        DateMute.MONDAY : DateMute.TUESDAY,
+        DateMute.TUESDAY : DateMute.WEDNESDAY,
+        DateMute.WEDNESDAY : DateMute.THURSDAY,
+        DateMute.THURSDAY : DateMute.FRIDAY,
+        DateMute.FRIDAY : DateMute.SATURDAY,
+        DateMute.SATURDAY : DateMute.SUNDAY,
+        DateMute.SUNDAY : DateMute.MONDAY
     ]
-    private let monthAfterDict_caps = [
-        "JANUARY":"FEBRUARY",
-        "FEBRUARY":"MARCH",
-        "MARCH":"APRIL",
-        "APRIL":"MAY",
-        "MAY":"JUNE",
-        "JUNE":"JULY",
-        "JULY":"AUGUST",
-        "AUGUST":"SEPTEMBER",
-        "SEPTEMBER":"OCTOBER",
-        "OCTOBER":"NOVEMBER",
-        "NOVEMBER":"DECEMBER",
-        "DECEMBER":"JANUARY"
+    private static let monthAfterDict_caps = [
+        DateMute.JANUARY : DateMute.FEBRUARY,
+        DateMute.FEBRUARY : DateMute.MARCH,
+        DateMute.MARCH : DateMute.APRIL,
+        DateMute.APRIL : DateMute.MAY,
+        DateMute.MAY : DateMute.JUNE,
+        DateMute.JUNE : DateMute.JULY,
+        DateMute.JULY : DateMute.AUGUST,
+        DateMute.AUGUST : DateMute.SEPTEMBER,
+        DateMute.SEPTEMBER : DateMute.OCTOBER,
+        DateMute.OCTOBER : DateMute.NOVEMBER,
+        DateMute.NOVEMBER : DateMute.DECEMBER,
+        DateMute.DECEMBER : DateMute.JANUARY
     ]
-    private let monthBeforeDict_caps = [
-        "FEBRUARY":"JANUARY",
-        "MARCH":"FEBRUARY",
-        "APRIL":"MARCH",
-        "MAY":"APRIL",
-        "JUNE":"MAY",
-        "JULY":"JUNE",
-        "AUGUST":"JULY",
-        "SEPTEMBER":"AUGUST",
-        "OCTOBER":"SEPTEMBER",
-        "NOVEMBER":"OCTOBER",
-        "DECEMBER":"NOVEMBER",
-        "JANUARY":"DECEMBER"
+    private static let monthBeforeDict_caps = [
+        DateMute.FEBRUARY : DateMute.JANUARY,
+        DateMute.MARCH : DateMute.FEBRUARY,
+        DateMute.APRIL : DateMute.MARCH,
+        DateMute.MAY : DateMute.APRIL,
+        DateMute.JUNE : DateMute.MAY,
+        DateMute.JULY : DateMute.JUNE,
+        DateMute.AUGUST : DateMute.JULY,
+        DateMute.SEPTEMBER : DateMute.AUGUST,
+        DateMute.OCTOBER : DateMute.SEPTEMBER,
+        DateMute.NOVEMBER : DateMute.OCTOBER,
+        DateMute.DECEMBER : DateMute.NOVEMBER,
+        DateMute.JANUARY : DateMute.DECEMBER
     ]
-    private let monthNameDict_caps:[String:String] = [
-        "JANUARY":"01",
-        "FEBRUARY":"02",
-        "MARCH":"03",
-        "APRIL":"04",
-        "MAY":"05",
-        "JUNE":"06",
-        "JULY":"07",
-        "AUGUST":"08",
-        "SEPTEMBER":"09",
-        "OCTOBER":"10",
-        "NOVEMBER":"11",
-        "DECEMBER":"12"
+    private static let monthNameDigitDict_caps:[String:String] = [
+        DateMute.JANUARY : DateMute.janAs01,     DateMute.janAs1 : DateMute.JANUARY,      DateMute.janAs01 : DateMute.JANUARY,
+        DateMute.FEBRUARY : DateMute.febAs02,    DateMute.febAs2 : DateMute.FEBRUARY,     DateMute.febAs02 : DateMute.FEBRUARY,
+        DateMute.MARCH : DateMute.marAs03,       DateMute.marAs3 : DateMute.MARCH,        DateMute.marAs03 : DateMute.MARCH,
+        DateMute.APRIL : DateMute.aprAs04,       DateMute.aprAs4 : DateMute.APRIL,        DateMute.aprAs04 : DateMute.APRIL,
+        DateMute.MAY : DateMute.mayAs05,         DateMute.mayAs5 : DateMute.MAY,          DateMute.mayAs05 : DateMute.MAY,
+        DateMute.JUNE : DateMute.junAs06,        DateMute.junAs6 : DateMute.JUNE,         DateMute.junAs06 : DateMute.JUNE,
+        DateMute.JULY : DateMute.julAs07,        DateMute.julAs7 : DateMute.JULY,         DateMute.julAs07 : DateMute.JULY,
+        DateMute.AUGUST : DateMute.augAs08,      DateMute.augAs8 : DateMute.AUGUST,       DateMute.augAs08 : DateMute.AUGUST,
+        DateMute.SEPTEMBER : DateMute.sepAs09,   DateMute.sepAs9 : DateMute.SEPTEMBER,    DateMute.sepAs09 : DateMute.SEPTEMBER,
+        DateMute.OCTOBER : DateMute.octAs10,     DateMute.octAs10 : DateMute.OCTOBER,
+        DateMute.NOVEMBER : DateMute.novAs11,    DateMute.novAs11 : DateMute.NOVEMBER,
+        DateMute.DECEMBER : DateMute.decAs12,    DateMute.decAs12 : DateMute.DECEMBER
     ]
-    private let monthDigitDict_caps:[String:String] = [
-        "1":"JANUARY",
-        "01":"JANUARY",
-        "2":"FEBRUARY",
-        "02":"FEBRUARY",
-        "3":"MARCH",
-        "03":"MARCH",
-        "4":"APRIL",
-        "04":"APRIL",
-        "5":"MAY",
-        "05":"MAY",
-        "6":"JUNE",
-        "06":"JUNE",
-        "7":"JULY",
-        "07":"JULY",
-        "8":"AUGUST",
-        "08":"AUGUST",
-        "9":"SEPTEMBER",
-        "09":"SEPTEMBER",
-        "10":"OCTOBER",
-        "11":"NOVEMBER",
-        "12":"DECEMBER"
-    ]
-    func theDayAfter(day:String) -> String!
+    static func theDayAfter(day:String) -> String!
     {
         return dayAfterDict_caps[day.uppercased()]
     }
     
-    func convertMonthNameToDigits(monthName:String!) -> String
+    static func convertMonthNameToDigits(monthName:String!) -> String
     {
-        return self.monthNameDict_caps[monthName.uppercased()]!
+        return DateMute.monthNameDigitDict_caps[monthName.uppercased()]!
     }
     
-    func convertMonthDigitsToName(monthDigit:String) -> String
+    static func convertMonthDigitsToName(monthDigit:String) -> String
     {
-        return self.monthDigitDict_caps[monthDigit]!
+        return DateMute.monthNameDigitDict_caps[monthDigit]!
     }
     
-    func convertMonthDigitsToName(monthDigit:Int) -> String
+    static func convertMonthDigitsToName(monthDigit:Int) -> String
     {
-        return self.monthDigitDict_caps[String(monthDigit)]!
+        return DateMute.monthNameDigitDict_caps[String(monthDigit)]!
+    }
+    static func digitToZeroSafeString(digit:Int) -> String
+    {
+        switch digit
+        {
+        case 1...9:
+            return "0"+String(digit)
+        default:
+            return String(digit)
+        }
     }
     
-    func getDate(from YYYYMMDD:String) -> Date
+    static func getDate(from YYYYMMDD:String) -> Date
     {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: Calendar.current.component(Calendar.Component.timeZone, from: Date()))
+        //dateFormatter.timeZone = TimeZone(secondsFromGMT: Calendar.current.component(Calendar.Component.timeZone, from: Date()))
         let date:Date = dateFormatter.date(from: YYYYMMDD)!
         return date
     }
     
-    func dayOfWeekOfDate(YYYYMMDD:String) -> String
+    static func dayOfWeekOfDate(YYYYMMDD:String) -> String
     {
-        let date = self.getDate(from: YYYYMMDD)
+        let date = DateMute.getDate(from: YYYYMMDD)
         let weekday = Calendar.current.component(.weekday, from:date)
-        return self.getWeekdayString(from: weekday)
+        return DateMute.getWeekdayString(from: weekday)
     }
     
-    func getWeekdayString(from intVal:Int) -> String
+    static func getWeekdayString(from intVal:Int) -> String
     {
         switch intVal
         {
         case 1:
-            return self.sunday
+            return DateMute.SUNDAY
         case 2:
-            return self.monday
+            return DateMute.MONDAY
         case 3:
-            return self.tuesday
+            return DateMute.TUESDAY
         case 4:
-            return self.wednesday
+            return DateMute.WEDNESDAY
         case 5:
-            return self.thursday
+            return DateMute.THURSDAY
         case 6:
-            return self.friday
+            return DateMute.FRIDAY
         case 7:
-            return self.saturday
+            return DateMute.SATURDAY
         default:
             return "err"
         }
     }
     
-    func getMonthRangeCount(YYYYMMDD:String) -> Int
+    static func getMonthRangeCount(YYYYMMDD:String) -> Int
     {
-        let date = self.getDate(from: YYYYMMDD)
+        let date = DateMute.getDate(from: YYYYMMDD)
         return NSCalendar.current.range(of: .day, in: .month, for: date)!.count
     }
     
-    func getMonthRangeCount(from date:Date) -> Int
+    static func getMonthRangeCount(from date:Date) -> Int
     {
         return NSCalendar.current.range(of: .day, in: .month, for: date)!.count
     }
     
-    func getTheMonthAfter(month:String) -> String
+    static func getTheMonthAfter(month:String) -> String
     {
-        return self.monthAfterDict_caps[month.uppercased()]!
+        return DateMute.monthAfterDict_caps[month.uppercased()]!
     }
     
-    func getTheMonthAfter(monthDigit:String) -> String
+    static func getTheMonthAfter(monthDigit:String) -> String
     {
-        let stringMonth = (self.convertMonthDigitsToName(monthDigit: monthDigit)).uppercased()
-        return self.monthAfterDict_caps[stringMonth]!
+        let stringMonth = (DateMute.convertMonthDigitsToName(monthDigit: monthDigit)).uppercased()
+        return DateMute.monthAfterDict_caps[stringMonth]!
     }
     
-    func getTheMonthBefore(month:String) -> String
+    static func getTheMonthBefore(month:String) -> String
     {
-        return self.monthBeforeDict_caps[month.uppercased()]!
+        return DateMute.monthBeforeDict_caps[month.uppercased()]!
     }
     
-    func getTheMonthBefore(monthDigit:String) -> String
+    static func getTheMonthBefore(monthDigit:String) -> String
     {
-        let stringMonth = (self.convertMonthDigitsToName(monthDigit: monthDigit)).uppercased()
-        return self.monthBeforeDict_caps[stringMonth]!
-    }
-}
-
-class YearData {
-    
-    var number = 2018
-    var month = MonthDataSets().year[2018]
-    
-    func selectNewYear(newYear: Int)
-    {
-        self.number = newYear
-        //change month data here as appropriate. Eventually, the month var will be assigned from a private array of all the different month info for each year. It would just be reassigned, like self.month = self.monthDataSets[String(newYear)]
-    }
-    
-    struct MonthDataSets{
-        let year =
-            [
-                2018:[
-                    "JANUARY":["start":"MONDAY",
-                               "days":"31",
-                               "number":"01"],
-                    "FEBRUARY":["start":"THURSDAY",
-                                "days":"28",
-                                "number":"02"],
-                    "MARCH":["start":"FRIDAY",
-                             "days":"31",
-                             "number":"03"],
-                    "APRIL":["start":"WEDNESDAY",
-                             "days":"30",
-                             "number":"04"],
-                    "MAY":["start":"FRIDAY",
-                           "days":"31",
-                           "number":"05"],
-                    "JUNE":["start":"MONDAY",
-                            "days":"30",
-                            "number":"06"],
-                    "JULY":["start":"SUNDAY",
-                            "days":"31",
-                            "number":"07"],
-                    "AUGUST":["start":"WEDNESDAY",
-                              "days":"31",
-                              "number":"08"],
-                    "SEPTEMBER":["start":"SATURDAY",
-                                 "days":"30",
-                                 "number":"09"],
-                    "OCTOBER":["start":"MONDAY",
-                               "days":"31",
-                               "number":"10"],
-                    "NOVEMBER":["start":"THURSDAY",
-                                "days":"30",
-                                "number":"11"],
-                    "DECEMBER":["start":"SATURDAY",
-                                "days":"31",
-                                "number":"12"]
-                ],
-                2019:[
-                    "JANUARY":["start":"?",
-                               "days":"31",
-                               "number":"01"],
-                    "FEBRUARY":["start":"?",
-                                "days":"28",
-                                "number":"02"],
-                    "MARCH":["start":"?",
-                             "days":"31",
-                             "number":"03"],
-                    "APRIL":["start":"?",
-                             "days":"30",
-                             "number":"04"],
-                    "MAY":["start":"?",
-                           "days":"31",
-                           "number":"05"],
-                    "JUNE":["start":"?",
-                            "days":"30",
-                            "number":"06"],
-                    "JULY":["start":"?",
-                            "days":"31",
-                            "number":"07"],
-                    "AUGUST":["start":"?",
-                              "days":"31",
-                              "number":"08"],
-                    "SEPTEMBER":["start":"?",
-                                 "days":"30",
-                                 "number":"09"],
-                    "OCTOBER":["start":"?",
-                               "days":"31",
-                               "number":"10"],
-                    "NOVEMBER":["start":"?",
-                                "days":"30",
-                                "number":"11"],
-                    "DECEMBER":["start":"?",
-                                "days":"31",
-                                "number":"12"]
-                ]
-        ]
+        let stringMonth = (DateMute.convertMonthDigitsToName(monthDigit: monthDigit)).uppercased()
+        return DateMute.monthBeforeDict_caps[stringMonth]!
     }
 }

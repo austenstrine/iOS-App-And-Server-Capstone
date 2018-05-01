@@ -9,8 +9,9 @@
 import UIKit
 //https://youtu.be/akmPXZ4hDuU
 //unwind segue info
+typealias PVC = PlansViewController
 
-class PlansViewController: SocketedViewController
+class PlansViewController: DelegatedViewController
 {
 
     @IBOutlet weak var loginView: UIView!
@@ -20,97 +21,100 @@ class PlansViewController: SocketedViewController
     @IBOutlet weak var planTitleLabel: UILabel!
     
     var selectedPlanName:String! = "Timeless"
-    var didUnwind:Bool! = false
+    var unwindToCalendar:Bool = false
+    var unwindToProfile:Bool = false
     
-    override func viewDidAppear(_ animated: Bool)
+    override func viewWillAppear(_ animated: Bool)
     {
-        super.viewDidAppear(animated)
-        delegate.validatePlansData
+        super.viewWillAppear(animated)
+        self.delegate.validateAllData(rebuild:false)
         {
             self.updatePlanContent()
         }
     }
     
+
+    
     @IBAction func unwindToPlansView(sender: UIStoryboardSegue)
     {
-        print("++++++++++")
-        print("UNWIND TO PLANS")
-        print("++++++++++")
+        //print("++++++++++")
+        //print("UNWIND TO PLANS")
+        //print("++++++++++")
+        
         if let sourceViewController = sender.source as? CalendarViewController
         {
-            sourceViewController.didUnwind = true
-            self.selectedPlanName = sourceViewController.planSelected!
+            self.selectedPlanName = sourceViewController.planSelected
         }
     }
     
     @IBAction func selectPlanTapped(_ sender: Any)
     {
-        print("++++++++++")
-        print("SELECT PLAN TAPPED")
-        print("++++++++++")
-        if self.didUnwind == false
+        //print("++++++++++")
+        //print("SELECT PLAN TAPPED")
+        //print("++++++++++")
+        if self.unwindToProfile
         {
-            var doesNotHaveCalendarViewController:Bool! = true
-            for vc in self.navigationController!.viewControllers
-            {
-                if vc is CalendarViewController
-                {
-                    doesNotHaveCalendarViewController = false
-                    break
-                }
-            }
-            if doesNotHaveCalendarViewController
-            {
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print("!!  Calendar not found in Nav !!")
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print(self.navigationController!.viewControllers)
-                let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "CalendarViewController") as! CalendarViewController
-                nextViewController.planSelected = self.selectedPlanName
-                self.navigationController?.pushViewController(nextViewController, animated: true)
-            }
-            else
-            {
-                self.performSegue(withIdentifier: "unwindToCalendarView", sender: self)
-            }
+            self.unwindToProfile = false
+            self.performSegue(withIdentifier: UnwindIDs.plans.unwindToProfileView, sender: self)
+            return
         }
-        self.didUnwind = false
+        
+        if self.unwindToCalendar
+        {
+            self.unwindToCalendar = false
+            self.performSegue(withIdentifier: UnwindIDs.plans.unwindToCalendarView, sender: self)
+        }
+        else
+        {
+            let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "CalendarViewController") as! CalendarViewController
+            nextViewController.planSelected = self.selectedPlanName
+            nextViewController.unwindToPlans = true
+            self.navigationController?.pushViewController(nextViewController, animated: true)
+        }
+        /*
+         var doesNotHaveCalendarViewController:Bool! = true
+         for vc in self.navigationController!.viewControllers
+         {
+         if vc is CalendarViewController
+         {
+         doesNotHaveCalendarViewController = false
+         break
+         }
+         }
+         if doesNotHaveCalendarViewController
+         {
+         //print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+         //print("!!  Calendar not found in Nav !!")
+         //print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+         //print(self.navigationController!.viewControllers)
+         let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "CalendarViewController") as! CalendarViewController
+         nextViewController.planSelected = self.selectedPlanName
+         self.navigationController?.pushViewController(nextViewController, animated: true)
+         }
+         else
+         {
+         self.performSegue(withIdentifier: "unwindToCalendarView", sender: self)
+         }*/
     }
     
     @IBAction func goldPlanNavTap(_ sender: Any)
     {
-        func refreshPlan(){self.refreshPlan(index: 3)}
-        delegate.validatePlansData()
-        {
-            refreshPlan()
-        }
+        self.refreshPlan(index: 3)
     }
     
     @IBAction func silverPlanNavTap(_ sender: Any)
     {
-        func refreshPlan(){self.refreshPlan(index: 2)}
-        delegate.validatePlansData()
-        {
-            refreshPlan()
-        }
+        self.refreshPlan(index: 2)
     }
     
     @IBAction func bronzePlanNavTap(_ sender: Any)
     {
-        func refreshPlan(){self.refreshPlan(index: 1)}
-        delegate.validatePlansData()
-        {
-            refreshPlan()
-        }
+        self.refreshPlan(index: 1)
     }
     
     @IBAction func timelessPlanNavTap(_ sender: Any)
     {
-        func refreshPlan(){self.refreshPlan(index: 0)}
-        delegate.validatePlansData()
-        {
-            refreshPlan()
-        }
+        self.refreshPlan(index: 0)
     }
     
     func refreshPlan(index:Int)

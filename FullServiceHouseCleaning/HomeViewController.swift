@@ -10,54 +10,43 @@
 import UIKit
 import SocketIO
 
-class HomeViewController: SocketedViewController
+class HomeViewController: DelegatedViewController
 {
+    var unwindOnce = true
 
-    @IBAction func buttonAction(_ sender: Any) {
-        delegate.socket.emit("plans_request")
-    }
-    override func didReceiveMemoryWarning()
+    @IBAction func buttonAction(_ sender: Any)
     {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        print("\n\nHome viewDidLoad()\n\n")
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("\n\nHome viewDidAppear\n\n")
-        delegate.validateSocket(rebuildSocket: false)
-        print(delegate.socket.status)
-        if delegate.socket.status != .connected
+        guard let uploadData = try? JSONEncoder().encode(UserSendable(user: self.delegate.arrayOfUserInfo[0], passwordString: PairedPhrase.encodePass(pass:"abc123$%^")))
+            else
         {
-            print("\n\nConnecting, not connected.\n\n")
-            delegate.connectSocket()
+            print("let uploadData FAILED!!!")
+            return
         }
+        self.delegate.socket.emit(EmitStrings.update_user, with:[uploadData])
+    }
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        print("home")
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.delegate.validateAllData()
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidDisappear(animated)
+        print("home")
     }
     
     @IBAction func unwindToHome(segue:UIStoryboardSegue)
     {
-        //self.delegate.validateAllData()
+        print("home unwind")
+        if unwindOnce
+        {
+            unwindOnce = false
+            DispatchQueue.main.async
+            {
+                self.delegate.validateAllData()
+            }
+        }
     }
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

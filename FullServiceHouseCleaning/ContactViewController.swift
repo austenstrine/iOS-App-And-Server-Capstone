@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ContactViewController: SocketedViewController
+class ContactViewController: DelegatedViewController
 {
 
     @IBOutlet weak var emailButton: UIButton!
@@ -34,7 +34,7 @@ class ContactViewController: SocketedViewController
     
     @objc func phoneNumberLabelTapped()
     {
-        print("entered call number function")
+        //print("entered call number function")
         if let url = URL(string: "tel:\(self.number)")//, UIApplication.shared.canOpenURL(url)
         {
             if #available(iOS 10, *)
@@ -45,13 +45,13 @@ class ContactViewController: SocketedViewController
             {
                 UIApplication.shared.openURL(url)
             }
-            print("phone app would open here on iOS Device (does not work on simulator)")
+            //print("phone app would open here on iOS Device (does not work on simulator)")
         }
     }
     
     @objc func emailLabelTapped()
     {
-        print("entered email function")
+        //print("entered email function")
         if let url = URL(string: "mailto:\(self.email)")//, UIApplication.shared.canOpenURL(url)
         {
             if #available(iOS 10, *)
@@ -62,7 +62,7 @@ class ContactViewController: SocketedViewController
             {
                 UIApplication.shared.openURL(url)
             }
-            print("email app would open here on iOS Device (does not work on simulator)")
+            //print("email app would open here on iOS Device (does not work on simulator)")
         }
     }
     

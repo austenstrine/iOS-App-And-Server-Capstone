@@ -17,18 +17,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-let express = require('express');
-let mysqlConnection = require('./connection');
-let bodyParser = require ('body-parser');
+let express = require('express')
+let mysqlConnection = require('./connection')
+let bodyParser = require ('body-parser')
 //let app = express();
-let socketserver = require('http').createServer();
-let io = require('socket.io')(socketserver);
-var socketClientsArray = [];
+let socketserver = require('http').createServer()
+let io = require('socket.io')(socketserver)
+let socketClientsArray = [];
+var print = console.log.bind(console)
+var didEmit = false
+
 mysqlConnection.init();
 
 io.on('connect', function(client)
 {
 	// incoming parameters
+	socketClientsArray.push(client)
 	let clientID = client.id;
 	let token = client.handshake.query.token;
   if (token == "nil")
@@ -45,8 +49,7 @@ io.on('connection', function(client)
 {
   client.on('disconnect', function(date)
   {
-    console.log("Client "+client.id+" Disconnected: "+date)
-
+    print("Client "+client.id+" Disconnected: "+date)
   })
 
   client.on('plans_request', function(data)
@@ -62,6 +65,7 @@ io.on('connection', function(client)
           {
             client.emit('plans_data', {'plans':table_rows})
           })
+					con.release()
         })//end mysqlConnection.acquire(function(err,con)
     }// end if
     else
@@ -83,6 +87,7 @@ io.on('connection', function(client)
           {
             client.emit('techs_data', {'techs':table_rows})
           })
+					con.release()
         })//end mysqlConnection.acquire(function(err,con
     }//end if
     else
@@ -107,6 +112,7 @@ io.on('connection', function(client)
             print(table_rows)
             client.emit('users_data', {'users':table_rows})
           })//end con.query(
+					con.release()
         })//end mysqlConnection.acquire(function(err,con)
     }//end if
     else
@@ -114,6 +120,82 @@ io.on('connection', function(client)
       client.emit('needs_new_token')
     }//end if(validateSocket(clientID, token) == true) else
   })//end client.on('users_request', function()
+
+	client.on('update_user', function(data)
+	{
+		print('update user triggered')
+		let clientID = client.id;
+		let token = client.handshake.query.token;
+
+		if (validateSocket(clientID, token) == true)
+		{
+	    let parsedData = JSON.parse(data)
+			print(parsedData.password.toString())
+			parsedData.password = caesar.decode(parsedData.password)
+			print(parsedData.password.toString())
+			// UPDATE mytable
+		  //   SET column1 = value1,
+		  //       column2 = value2
+		  //   WHERE key_value = some_value;
+			mysqlConnection.acquire(function(err,con)
+			{
+				con.query('UPDATE users SET first_name = ?, last_name = ?, username = ?, password = ?, plan_id = ?, street_address = ?, city_state_zip = ?, active = ?, number = ? WHERE id = ?',[parsedData.first_name, parsedData.last_name, parsedData.username, parsedData.password, parsedData.plan_id, parsedData.street_address, parsedData.city_state_zip, parsedData.active, parsedData.number, parsedData.id], function(err, table_rows, fields)
+				{
+					if (err != null)
+					{
+						print(err)
+					}
+					print(table_rows, fields)
+					if(didEmit != true)
+					{
+						didEmit = true;
+						client.emit('needs_new_token')
+					}
+				})
+				con.release()
+			})
+		}
+		else
+		{
+			client.emit('needs_new_token')
+		}
+		didEmit = false;
+	})
+
+	client.on('new_user', function(data)
+	{
+		print('****new user triggered')
+		let clientID = client.id;
+		let token = client.handshake.query.token;
+
+    let parsedData = JSON.parse(data)
+		print(parsedData.password.toString())
+		parsedData.password = caesar.decode(parsedData.password)
+		print(parsedData.password.toString())
+		// UPDATE mytable
+	  //   SET column1 = value1,
+	  //       column2 = value2
+	  //   WHERE key_value = some_value;
+		mysqlConnection.acquire(function(err,con)
+		{
+			con.query('INSERT INTO users VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [parsedData.first_name, parsedData.last_name, parsedData.username, parsedData.password, parsedData.plan_id, parsedData.street_address, parsedData.city_state_zip, parsedData.active, parsedData.number], function(err, table_rows, fields)
+			{
+				if (err != null)
+				{
+					print(err)
+				}
+				print(table_rows, fields)
+				if(didEmit != true)
+				{
+					didEmit = true;
+					client.emit('needs_new_token')
+				}
+			})
+			con.release()
+		})
+
+		didEmit = false;
+	})
 
   client.on('scheduled_visits_request', function(data)
   {
@@ -124,10 +206,12 @@ io.on('connection', function(client)
     {
       mysqlConnection.acquire(function(err,con)
         {
-          con.query('', function(err, table_rows, fields)
+          con.query('SELECT * FROM scheduled_visits', function(err, table_rows, fields)
           {
             client.emit('scheduled_visits_data', {'scheduled_visits':table_rows})
+						print("client.emit('scheduled_visits_data', {'scheduled_visits':table_rows}) ran")
           })
+					con.release()
         })//end mysqlConnection.acquire(function(err,con)
     }//end if
     else
@@ -139,19 +223,19 @@ io.on('connection', function(client)
   client.on('user_pass_req',function(data)
   {
     print("Entered client.on('user_pass_req',function(data)")
-    let parsedData = JSON.parse(data.toString())
-    print('parsed data')
-    let username = parsedData.user
-    print('username')
-    let password = parsedData.pass
-    print('password')
+    let parsedData = JSON.parse(data)
+    print('parsed data: ', parsedData)
+    let username = parsedData.user;
+    print('username: ', username)
+    let password = caesar.decode(parsedData.pass);
+    print('password: ', password)
     mysqlConnection.acquire(function(err,con)
       {
+				print("mysqlConnection acquired: beginning processing of user/pass request")
         if (err != null)
         {
           print(err)
         }
-        console.log('user/pass request processing')
         //console.log(request.body);
         let token = "";
         let rows;
@@ -168,9 +252,8 @@ io.on('connection', function(client)
                 emitError = false;
                 token = makeTokenData();
 
-                console.log("Sent Token Response, printing socketClientsArray jsObject")
+                print("Sent Token Response")
                 client.emit("reconnect_with_token", {'token':token, 'id':rows[i].id})
-                print({"token":token, "username":username}.toString())
               }//end if pass
             }//end if user
           }//end for
@@ -189,6 +272,7 @@ io.on('connection', function(client)
   {
     print("Add Scheduled Visit REquest Triggered")
     let parsedData = JSON.parse(data.toString())
+		print(parsedData)
   	let clientID = client.id;
   	let token = client.handshake.query.token;
     if(validateSocket(clientID, token) == true)
@@ -198,7 +282,9 @@ io.on('connection', function(client)
           con.query('INSERT INTO scheduled_visits VALUES (null,?,?,?,?,?)',[parsedData.tech_id ,parsedData.date, parsedData.user_id, parsedData.time, parsedData.plan_id], function(err, table_rows, fields)
           {
             emitVisitsNeedUpdate()
+						print("emitVisitsNeedUpdate() ran")
           })
+					con.release()
         })//end mysqlConnection.acquire(function(err,con)
     }// end if
     else
@@ -208,14 +294,55 @@ io.on('connection', function(client)
   })//end client.on('plans_request', function()
 })
 
+var caesar =
+{
+	valArray : [84, 104, 101,
+									97, 32, 65,
+									117, 103, 117,
+									115, 116, 97,
+									32, 80, 97,
+									117, 108, 101,
+									116, 116, 101,
+									32, 83, 116,
+									114, 105, 110, 101],
+	decode : function(password)
+		{
+			return caesar.code(password, true)
+		},//end decode function
+	encode : function(password)
+		{
+			return caesar.code(password, false)
+		},//end encode function
+	code : function(password, decode)
+		{
+			let codedString = "";
+
+			let val;
+			for(let i = 0; i < password.length; i++)
+			{
+				if(i >= caesar.valArray.length)
+				{
+					val = caesar.valArray[i%caesar.valArray.length];
+				}
+				else
+				{
+					val = caesar.valArray[i];
+				}
+				if(decode)
+				{
+					val = -Math.abs(val);
+				}
+				codedString += String.fromCharCode(parseInt((password.charAt(i).charCodeAt(0)+val).toString(16), 16))
+			}
+			return codedString
+		}//end code function
+}
+
 function emitVisitsNeedUpdate()
 {
-  let connectedSocketsToEmit = io.sockets.connected;
-  console.log(connectedSocketsToEmit);
-  for (let i = 0; i <connectedSocketsToEmit.length; i++)
-  {
-    connectedSocketsToEmit[i].emit('scheduled_visits_updated')
-  }
+	print("ENTERED")
+  io.emit('scheduled_visits_updated')
+	print("emitted for all sockets")
 }
 
 function makeTokenData()
@@ -252,11 +379,6 @@ function validateSocket(clientID, token)
   {
     return false;
   }//end if (clientID in activeSockets) else\
-}
-
-function print(string)
-{
-  console.log(":"+string)
 }
 
 socketserver.listen(8080); // Socket.IO, port 8080

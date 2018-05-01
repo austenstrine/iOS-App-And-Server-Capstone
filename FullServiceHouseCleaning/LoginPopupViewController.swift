@@ -8,7 +8,7 @@
 
 import UIKit
 
-class LoginPopupViewController: SocketedViewController
+class LoginPopupViewController: DelegatedViewController
 {
     @IBOutlet weak var loginView: UIView!
     @IBOutlet weak var warningLabel: UILabel!
@@ -17,9 +17,8 @@ class LoginPopupViewController: SocketedViewController
 
     override func viewWillAppear(_ animated: Bool)
     {
-        print(self.classForCoder, "\noverride func viewWillAppear(")
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"override func viewWillAppear(")
         delegate.validateSocket(rebuildSocket: false)
-        //print("\n\n", self.manager, " is manager\n\n")
         if self.navigationController != nil
         {
             self.navigationController!.isNavigationBarHidden = true
@@ -29,48 +28,54 @@ class LoginPopupViewController: SocketedViewController
     override func viewWillDisappear(_ animated: Bool)
     {
         super.viewWillDisappear(animated)
-        print(self.classForCoder, "\noverride func viewWillDisappear(")
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"override func viewWillDisappear(")
         if self.navigationController != nil
         {
             self.navigationController!.isNavigationBarHidden = false
         }
     }
     
+    @IBAction func unwindToLoginPopupView(sender:UIStoryboardSegue)
+    {
+        
+    }
+    
     @IBAction func passwordTextFieldPrimaryActionTriggered(_ sender: Any)
     {
-        print(self.classForCoder, "\nIBAction func passwordTextFieldPrimaryActionTriggered(")
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"IBAction func passwordTextFieldPrimaryActionTriggered(")
         self.loginButtonTapped(sender)
     }
     @IBAction func loginButtonTapped(_ sender: Any)
     {
-        print(self.classForCoder, "\n@IBAction func loginButtonTapped")
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"@IBAction func loginButtonTapped")
         let user = self.usernameTextField.text!
         let pass = self.passwordTextField.text!
-        DispatchQueue.global(qos: .utility).async
-        {
-            self.getUserToken(user: user, pass: pass)
-        }
+        self.delegate.username = user
+        self.delegate.password = pass
+        self.getUserToken(user: user, pass: PairedPhrase.encodePass(pass: pass) )
     }
     
     @IBAction func newUserButtonTapped(_ sender: Any)
     {
-        print(self.classForCoder, "\n@IBAction func newUserButtonTapped(")
-        print(self.delegate.token)
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"@IBAction func newUserButtonTapped(")
+        let nextViewController = self.storyboard!.instantiateViewController(withIdentifier: "ProfileViewController") as! ProfileViewController
+        nextViewController.emitAsNewUser = true
+        self.navigationController!.pushViewController(nextViewController, animated: true)
     }
     
     func getUserToken(user:String, pass:String)
     {
-        print(self.classForCoder, "\nfunc getUserToken)")
+        print("\n", self.classForCoder, Thread.current, "\n\n"+"func getUserToken)")
         guard let uploadData = try? JSONEncoder().encode(UserPassRequest(user:user, pass:pass)) else
         {
             return
         }
-        print(self.delegate.socket)
-        print([uploadData])
+        //print(self.delegate.socket)
+        //print([uploadData])
         self.delegate.socket.emit("user_pass_req", with: [uploadData])
-        print("event emitted")
+        //print("event emitted")
         
-//        print("***Entered token get")
+//        //print("***Entered token get")
 //        struct UserPass:Codable
 //        {
 //            let username:String
@@ -79,7 +84,7 @@ class LoginPopupViewController: SocketedViewController
 //        let userPass = UserPass(username:user, password:pass)
 //        guard let uploadData = try? JSONEncoder().encode(userPass) else
 //        {
-//            print("***token data GET failed***")
+//            //print("***token data GET failed***")
 //            return
 //        }
 //        let url = URL(string: "http://localhost:3000/user")!
@@ -91,20 +96,20 @@ class LoginPopupViewController: SocketedViewController
 //            data, response, error in
 //
 //            self.clientLock.lock()
-//            print("user token got lock")
+//            //print("user token got lock")
 //            defer
 //            {
-//                print("user token releasing lock")
+//                //print("user token releasing lock")
 //                self.clientLock.unlock()
 //                DispatchQueue.main.async {
-//                    deferredUIUpdateFunc()
-//                    print("CHECK TRIGGERED")
+//                    mainThreadCompletionHandler()
+//                    //print("CHECK TRIGGERED")
 //                }
 //            }
-//            print(response ?? "Empty Response!")
-//            print("***Response above")
-//            print(data ?? "Empty Data!")
-//            print("***Data above")
+//            //print(response ?? "Empty Response!")
+//            //print("***Response above")
+//            //print(data ?? "Empty Data!")
+//            //print("***Data above")
 //
 //            guard let data = data else { return }//if data can't be assigned, exit.
 //
@@ -113,7 +118,7 @@ class LoginPopupViewController: SocketedViewController
 //            {
 //                let token = try JSONDecoder().decode(Token.self, from: data)//grab data from server
 //                self.token = token.token
-//                print("Token is:"+self.token!)
+//                //print("Token is:"+self.token!)
 //
 //            }
 //            catch let jsonErr
@@ -141,7 +146,7 @@ class LoginPopupViewController: SocketedViewController
 //            }
 //        }
 //        task.resume()
-//        print("***Exited token get")
+//        //print("***Exited token get")
     }
 
     /*
