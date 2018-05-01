@@ -39,6 +39,7 @@
         Calendar
             !LOW -> Gray out/disable days that are before current date. Converting yyyyMMdd to int and compare size should do it.
  
+            LOW -> figure out how to statically set the days of the week, and have the cells in the calendar align properly - probably can be acheived by setting the 'left margin' to multiples of cellWidth depending on which day the month starts on
             LOW -> correct horizontal alignment after calendar appears
             LOW -> change techs scrollview into a collectionview that initializes tech buttons dynamically according to the number of techs
                 -> HIGH WORKLOAD
@@ -52,6 +53,9 @@
  
         NetworkError
             !LOW -> Ensure user must get a new token on reconnect
+ 
+        New View
+            LOW -> Tech Profile, where customers can see information and a profile pic of the techs who will be servicing them - adds a touch of personality to the business.
 
         * -> In Progress
         ! -> Complete

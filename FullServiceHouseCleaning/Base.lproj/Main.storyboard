@@ -53,14 +53,6 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9du-aI-L0B">
-                                        <rect key="frame" x="184" y="485" width="46" height="30"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <state key="normal" title="Button"/>
-                                        <connections>
-                                            <action selector="buttonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rjn-a5-Wk2"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="t6a-YO-mH3" firstAttribute="leading" secondItem="A3u-W5-R0N" secondAttribute="leading" constant="30" id="7PZ-6C-Xc4"/>
