@@ -10,6 +10,28 @@ I would start with the installation instructions on this page:
 
 https://medium.com/@spiromifsud/realtime-updates-in-ios-swift-4-using-socket-io-with-mysql-and-node-js-de9ae771529
 
+Installation excerpt from the article:
+
+"MySQL (executable .pkg installer) 
+
+https://dev.mysql.com/downloads/mysql/5.1.html#macosx-dmg
+
+Node.js and NPM (from the Terminal)
+
+`$ brew install node`
+
+Express (from the Terminal)
+
+`$ npm install express --save`
+
+Node MySQL Driver (from the Terminal)
+
+`$ npm install mysql --save`
+
+Socket.IO (from the Terminal)
+
+`$ npm install socket.io --save"`
+
 
 Here are a few hiccups and tips for following the steps above:
 
